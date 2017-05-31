@@ -109,12 +109,12 @@ while True:
     
     # Get historic rates
     dtime_now = datetime.datetime.utcnow()
-    dtime_past = dtime_now - datetime.timedelta(minutes=60)
+    dtime_past = dtime_now - datetime.timedelta(minutes=5)
     
     params = {
         'start': dtime_past.isoformat(),
         'end': dtime_now.isoformat(),
-        'granularity': 40,
+        'granularity': 20,
     }
     
     product = 'BTC-USD'
@@ -184,7 +184,7 @@ while True:
         # no short positions then invest the entire
         # portfolio value to short SPY
     elif close_prices[-1] >= upper[-1] and IS_STOCK_FULL:
-        capital_under_management = close_prices[-1] * stock_btc
+        capital_under_management = capital_under_management + close_prices[-1] * stock_btc
         stock_btc = 0.0
         IS_STOCK_FULL = False
 
@@ -199,5 +199,5 @@ while True:
         pass
             
 
-    time.sleep(45)
+    time.sleep(8)
     ## END LOOP ##    
