@@ -48,9 +48,9 @@ RUN cd /tmp && \
     tar xvzf  ta-lib-0.4.0-src.tar.gz  && \
     cd ta-lib && \
     ./configure --prefix=/usr && \
-    make -j 2 && \
+    make && \
     make install
-
+ 
 COPY requirements.txt $HOME
 RUN cd
 RUN conda install --file requirements.txt
