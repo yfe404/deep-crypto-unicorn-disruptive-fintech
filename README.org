@@ -19,14 +19,22 @@ docker run -it trading python main.py
 
 *** Downloader usage
 
+Download historical rates (low, high, open, close, volume) from the real (not sandbox) API.
+
 Download rates for the month of January with a granularity of 30s:
 #+BEGIN_SRC sh
-./historic_rates_downloader.py 2017-01-01T00:00:00 2017-01-31T23:59:59 30 BTC-USD > res.csv
+export GDAX_API_KEY=XXX GDAX_API_SECRET=XXX GDAX_API_PASS=XXX
+
+./historic_rates_downloader.py 2017-01-01T06:00:00 2017-01-31T23:59:59 60 BTC-USD > res.csv
+# Downloading historic rates between 2017-01-01 06:00:00 and 2017-01-31 23:59:59 with granularity of 60 seconds
+# Downloading rates between 2017-01-01 06:00:00 and 2017-01-01 09:20:00 ...
+# Downloading rates between 2017-01-01 09:20:00 and 2017-01-01 12:40:00 ...
+# ...
 
 head res.csv
 # time,low,high,open,close,volume
+# 1496188840,2112.31,2336.88,2279.18,2191.58,20915.912901
 # 1496188800,2173.8,2338.91,2191.6,2296.47,19739.0089984
-# 1496188870,2112.31,2336.88,2279.18,2191.58,20915.912901
 #+END_SRC
 
 NOTE: Data may not be sorted by timestamp.
