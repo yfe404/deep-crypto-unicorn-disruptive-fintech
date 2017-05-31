@@ -7,9 +7,9 @@
 ## Include required libs
 import talib, pandas
 import numpy as np
-import json, hmac, hashlib, time, requests, base64
+import json, requests
 import os, time, datetime
-from requests.auth import AuthBase
+from coinbase import CoinbaseExchangeAuth
 
 # Read secrets from env
 #API_KEY = os.environ['GDAX_API_KEY']
@@ -34,30 +34,7 @@ reinvest_profit_rate=0.5
 DEBUG=True
 
 
-## auth
-# Create custom authentication for Exchange
-class CoinbaseExchangeAuth(AuthBase):
-    def __init__(self, api_key, secret_key, passphrase):
-        self.api_key = api_key
-        self.secret_key = secret_key
-        self.passphrase = passphrase
-
-    def __call__(self, request):
-        timestamp = str(time.time())
-        message = timestamp + request.method + request.path_url + (request.body or '')
-        hmac_key = base64.b64decode(self.secret_key)
-        signature = hmac.new(hmac_key, message, hashlib.sha256)
-        signature_b64 = signature.digest().encode('base64').rstrip('\n')
-
-        request.headers.update({
-            'CB-ACCESS-SIGN': signature_b64,
-            'CB-ACCESS-TIMESTAMP': timestamp,
-            'CB-ACCESS-KEY': self.api_key,
-            'CB-ACCESS-PASSPHRASE': self.passphrase,
-            'Content-Type': 'application/json'
-        })
-        return request
-
+# Helpers
 def print_json(jayson):
     print(json.dumps(jayson, indent=4))
 
@@ -68,7 +45,7 @@ api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # Get an auth token from coinbase
 auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
 
-## fetch hist data
+## Fetch accounts and print them
 r = requests.get(api_url + 'accounts', auth=auth)
 print_json(r.json())
 
