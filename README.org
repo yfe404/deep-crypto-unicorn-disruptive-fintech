@@ -17,3 +17,21 @@ docker build -t trading:latest .
 docker run -it trading python main.py
 #+END_SRC
 
+*** Simulator usage
+
+#+BEGIN_SRC python
+from simulator import Simulator
+simulator = Simulator()
+
+simulator.buy('BTC-USD', 1, 1000)
+# [Simulator] Buying 1 BTC at 1000 USD each
+# [Simulator] Total price = 1000 USD + 2.5 USD (fees)
+# [Simulator] BTC balance = 1 BTC
+# [Simulator] USD balance = -1002.5 USD
+
+simulator.sell('BTC-USD', 1, 1000)
+# [Simulator] Selling 1 BTC at 1000 USD each
+# [Simulator] Total earnings = 1000 USD - 2.5 USD (fees)
+# [Simulator] BTC balance = 0 BTC
+# [Simulator] USD balance = -5.0 USD
+#+END_SRC
