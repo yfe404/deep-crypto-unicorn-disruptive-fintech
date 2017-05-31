@@ -17,6 +17,20 @@ docker build -t trading:latest .
 docker run -it trading python main.py
 #+END_SRC
 
+*** Downloader usage
+
+Download rates for the month of January with a granularity of 30s:
+#+BEGIN_SRC sh
+./historic_rates_downloader.py 2017-01-01T00:00:00 2017-01-31T23:59:59 30 BTC-USD > res.csv
+
+head res.csv
+# time,low,high,open,close,volume
+# 1496188800,2173.8,2338.91,2191.6,2296.47,19739.0089984
+# 1496188870,2112.31,2336.88,2279.18,2191.58,20915.912901
+#+END_SRC
+
+NOTE: Data may not be sorted by timestamp.
+
 *** Simulator usage
 
 #+BEGIN_SRC python
