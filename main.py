@@ -10,6 +10,7 @@ import numpy as np
 import json, requests
 import os, time, datetime
 from coinbase import CoinbaseExchangeAuth
+from simulator import Simulator
 
 # Read secrets from env
 #API_KEY = os.environ['GDAX_API_KEY']
@@ -56,6 +57,9 @@ cumulative_return = 0.0
 capital_under_management = investment
 stock_btc=0.0
 last_capital = capital_under_management
+
+
+simulator = Simulator()
 
 while True:
 
@@ -113,6 +117,8 @@ while True:
         capital_under_management = 0.0
         IS_STOCK_FULL = True
 
+        simulator.buy(product, stock_btc, close_prices[-1])
+
         if DEBUG:
             print ">>> BUY SIGNAL"
         
@@ -126,6 +132,7 @@ while True:
         stock_btc = 0.0
         IS_STOCK_FULL = False
 
+        simulator.sell(product, stock_btc, close_prices[-1])
 
 	#Reinvest
 	if ( capital_under_management-last_capital > 0.0 ):
