@@ -37,14 +37,21 @@ current_date = start_date
 while current_date < end_date:
     intermediate_date = current_date + delta
     eprint('Downloading rates between {} and {} ...'.format(current_date, intermediate_date))
-    params = {'start': current_date.isoformat(), 'end': intermediate_date.isoformat(), 'granularity': granularity}
-    r = requests.get(API_URL + 'products/{}/candles'.format(product), params=params, auth=auth)
-    # TODO: Handle exception
-    result.extend(r.json())
+
+    try:
+        params = {'start': current_date.isoformat(), 'end': intermediate_date.isoformat(), 'granularity': granularity}
+        r = requests.get(API_URL + 'products/{}/candles'.format(product), params=params, auth=auth)
+        result.extend(r.json())
+    except requests.exceptions.RequestException as e:
+        eprint('Exception: {}'.format(e))
+
     current_date = intermediate_date
+
+# Sort by date
+result_sorted = sorted(result, key=lambda x: x[0])
 
 # Output CSV
 print('time,low,high,open,close,volume')
-for rates in result:
+for rates in result_sorted:
     print('{},{},{},{},{},{}'.format(rates[0], rates[1], rates[2], rates[3], rates[4], rates[5]))
 
