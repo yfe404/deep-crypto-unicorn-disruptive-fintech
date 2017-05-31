@@ -125,10 +125,10 @@ while True:
         print "Lower: {}".format(lower[-1])
         print "Stock full?: {}".format(IS_STOCK_FULL)
         print "Stock BTC: {}".format(stock_btc)
-        print "Capital: {}".format(capital_under_management)
+
         print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
-    	print "Absolute Profit: {}".format(profit)
-	print "Profit to Investment: {}\%".format(profit/investment*100)
+    	print "Absolute Secured Profit: {}".format(profit)
+	print "Secured Profit to Investment: {}%".format(profit/investment*100)
 
     if close_prices[-1] <= lower[-1] and not IS_STOCK_FULL:
         ## Buy max
@@ -149,11 +149,13 @@ while True:
         stock_btc = 0.0
         IS_STOCK_FULL = False
 
+
 	#Reinvest
-	profit += (last_capital-capital_under_management) * (1-reinvest_profit_rate)
-	if ( last_capital-capital_under_management > 0.0 ):
-		capital_under_management += (last_capital-capital_under_management)*reinvest_profit_rate
-	 
+	if ( capital_under_management-last_capital > 0.0 ):
+		print "<<< $$ MADE : {}".format(capital_under_management-last_capital)
+		profit += (capital_under_management-last_capital) * (1-reinvest_profit_rate)
+		capital_under_management += (capital_under_management-last_capital)*reinvest_profit_rate
+	 	last_capital = capital_under_management
 
        
         if DEBUG:
