@@ -4,13 +4,14 @@
 # References
 # https://docs.gdax.com/?python
 
-## Include required libs
-import talib, pandas
-import numpy as np
-import json, requests
-import os, time, datetime
+# Include required libs
+import os, json, requests, time, datetime
+import talib, pandas, numpy as np
 from coinbase import CoinbaseExchangeAuth
-from simulator import Simulator
+from simulator import PortfolioSimulator
+
+def print_json(jayson):
+    print(json.dumps(jayson, indent=4))
 
 # Read secrets from env
 #API_KEY = os.environ['GDAX_API_KEY']
@@ -22,23 +23,12 @@ API_KEY = "ca554f4040cd56adb1b625d63eaab096"
 API_SECRET = "kILvSj7TAsLfOHlhAo/0eoYJg7AGQ2U8RHmu4splW+Eb+Lgo20yhHPB2i4729N2zBIJiMJcXq3tXCTEICHbCyw=="
 API_PASS = "v2qdfkysrdf"
 
-
-#### Params
+# Params
+DEBUG = True
 product = 'BTC-USD'
 investment = 1000.0
-profit = 0.0
-reinvest_profit_rate=0.5
-
-
-
-# DEBUG mode
-DEBUG=True
-
-
-# Helpers
-def print_json(jayson):
-    print(json.dumps(jayson, indent=4))
-
+#profit = 0.0
+#reinvest_profit_rate = 0.5
 
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
@@ -46,46 +36,27 @@ api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # Get an auth token from coinbase
 auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
 
-## Fetch accounts and print them
-r = requests.get(api_url + 'accounts', auth=auth)
-print_json(r.json())
-
-
-# Flag that indicates if we have the traded asset in stock or not
-IS_STOCK_FULL=False
-cumulative_return = 0.0
-capital_under_management = investment
-stock_btc=0.0
-last_capital = capital_under_management
-
-
-simulator = Simulator()
+# Setup simulator
+simulator = PortfolioSimulator()
+simulator.set_balance('BTC', 0)
+simulator.set_balance('USD', investment)
 
 while True:
-
-
-    # Get historic rates
+    ## Get historic rates
     dtime_now = datetime.datetime.utcnow()
-    dtime_past = dtime_now - datetime.timedelta(minutes=5)
-    
+    dtime_past = dtime_now - datetime.timedelta(minutes=15)
     params = {
         'start': dtime_past.isoformat(),
         'end': dtime_now.isoformat(),
-        'granularity': 20,
+        'granularity': 60,
     }
-    
-
     r = requests.get(api_url + 'products/{}/candles'.format(product), params=params, auth=auth)
-    print(params)
-    #print_json(r.json())
-    
     close_prices = np.array([x[4] for x in r.json()])
+
     if DEBUG:
         print(close_prices)
-        print(close_prices.shape)
     
-    ## apply strategy 
-  
+    ## Apply strategy 
     upper, middle, lower = talib.BBANDS(
         close_prices,
         timeperiod=10,
@@ -95,62 +66,51 @@ while True:
         # Moving average type: simple moving average here
         matype=0)
         
-    # If close_prices is below the recent lower band and we have
-    # no long positions then invest the entire
-    # portfolio value into SPY
-    
     if DEBUG:
-        print "Close price: {}".format(close_prices[-1])
-        print "Upper: {}".format(upper[-1])
-        print "Middle: {}".format(middle[-1])
-        print "Lower: {}".format(lower[-1])
-        print "Stock full?: {}".format(IS_STOCK_FULL)
-        print "Stock BTC: {}".format(stock_btc)
+        print "Last close price: {}".format(close_prices[-1])
+        print "Upper / Middle / Lower bands: {} / {} / {}".format(upper[-1], middle[-1], lower[-1])
+        print "BTC balance: {} BTC".format(simulator.balance('BTC'))
+        print "BTC balance: {} USD (at last close price)".format(simulator.balance('BTC') * close_prices[-1])
+        print "USD balance: {} USD".format(simulator.balance('USD'))
+        # print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
+    	#print "Absolute Secured Profit: {}".format(profit)
+	#print "Secured Profit to Investment: {}%".format(profit/investment*100)
 
-        print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
-    	print "Absolute Secured Profit: {}".format(profit)
-	print "Secured Profit to Investment: {}%".format(profit/investment*100)
-
-    if close_prices[-1] <= lower[-1] and not IS_STOCK_FULL:
-        ## Buy max
-        stock_btc = capital_under_management / close_prices[-1]
-        capital_under_management = 0.0
-        IS_STOCK_FULL = True
-
-        simulator.buy(product, stock_btc, close_prices[-1])
-
+    # If the last close price is under the lower band
+    # and we have USD to buy BTC
+    if close_prices[-1] <= lower[-1] and simulator.balance('USD') > 0:
         if DEBUG:
             print ">>> BUY SIGNAL"
-        
-            
-        # If close_prices is above the recent upper band and we have
-        # no short positions then invest the entire
-        # portfolio value to short SPY
-    elif close_prices[-1] >= upper[-1] and IS_STOCK_FULL:
-	 ## short max
-        capital_under_management = close_prices[-1] * stock_btc
-        stock_btc = 0.0
-        IS_STOCK_FULL = False
 
-        simulator.sell(product, stock_btc, close_prices[-1])
+        ## Buy all the BTC we can
+        btc_qty = simulator.balance('USD') / close_prices[-1]
+        simulator.buy(product, btc_qty, close_prices[-1])
 
-	#Reinvest
-	if ( capital_under_management-last_capital > 0.0 ):
-		print "<<< $$ MADE : {}".format(capital_under_management-last_capital)
-		profit += (capital_under_management-last_capital) * (1-reinvest_profit_rate)
-		capital_under_management += (capital_under_management-last_capital)*reinvest_profit_rate
-	 	last_capital = capital_under_management
-
-       
+    # If close_prices is above the recent upper band and we have
+    # no short positions then invest the entire
+    # portfolio value to short BTC
+    elif close_prices[-1] >= upper[-1] and simulator.balance('BTC') > 0:
         if DEBUG:
             print ">>> SELL SIGNAL"
-    
+
+        ## Sell all the BTC we have
+        btc_qty = simulator.balance('BTC')
+        simulator.sell(product, btc_qty, close_prices[-1])
+
+	## Reinvest
+        # TODO: Reimplement
+#	if ( capital_under_management-last_capital > 0.0 ):
+#		print "<<< $$ MADE : {}".format(capital_under_management-last_capital)
+#		profit += (capital_under_management-last_capital) * (1-reinvest_profit_rate)
+#		capital_under_management += (capital_under_management-last_capital)*reinvest_profit_rate
+#	 	last_capital = capital_under_management
+#
+       
     else:
         # Do Nothing
         if DEBUG:
             print "... do nothing"
         pass
             
-
-    time.sleep(8)
+    time.sleep(30)
     ## END LOOP ##    

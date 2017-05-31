@@ -43,8 +43,8 @@ head res.csv
 *** Simulator usage
 
 #+BEGIN_SRC python
-from simulator import Simulator
-simulator = Simulator()
+from simulator import PortfolioSimulator
+simulator = PortfolioSimulator()
 
 simulator.buy('BTC-USD', 1, 1000)
 # [Simulator] Buying 1 BTC at 1000 USD each

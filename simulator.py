@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Simulator:
+class PortfolioSimulator:
     FEES_RATIO = (0.25/100) # 0.25% fees
 
     def __init__(self):
@@ -11,12 +11,13 @@ class Simulator:
 
         amount = quantity * price
         fees = amount * self.FEES_RATIO
+        fees_cur1 = fees / price
 
-        self.__update_balance(currency1, quantity)
-        self.__update_balance(currency2, -(amount+fees))
+        self.__update_balance(currency1, quantity-fees_cur1)
+        self.__update_balance(currency2, -amount)
 
         print('[Simulator] Buying {} {} at {} {} each').format(quantity, currency1, price, currency2)
-        print('[Simulator] Total price = {} {} + {} {} (fees)').format(amount, currency2, fees, currency2)
+        print('[Simulator] Fees = {} {} ({} {})').format(fees, currency2, fees_cur1, currency1)
         self.__print_balance(currency1)
         self.__print_balance(currency2)
 
@@ -24,18 +25,20 @@ class Simulator:
         currency1, currency2 = product.split('-')
 
         amount = quantity * price
-        fees = amount * self.FEES_RATIO
 
         self.__update_balance(currency1, -quantity)
-        self.__update_balance(currency2, +(amount-fees))
+        self.__update_balance(currency2, amount)
 
         print('[Simulator] Selling {} {} at {} {} each').format(quantity, currency1, price, currency2)
-        print('[Simulator] Total earnings = {} {} - {} {} (fees)').format(amount, currency2, fees, currency2)
+        print('[Simulator] Total earnings = {} {}').format(amount, currency2)
         self.__print_balance(currency1)
         self.__print_balance(currency2)
 
     def balance(self, currency):
         return self.balances.get(currency, 0)
+
+    def set_balance(self, currency, value):
+        self.balances[currency] = value
 
     def __update_balance(self, currency, diff):
         current = self.balances.get(currency, 0)
