@@ -37,7 +37,7 @@ head res.csv
 # 1496188800,2173.8,2338.91,2191.6,2296.47,19739.0089984
 #+END_SRC
 
-NOTE: Data may not be sorted by timestamp.
+*NOTE:* Samples are not guaranteed to be uniformly distributed. Please plot against timestamp.
 
 *** Simulator usage
 
