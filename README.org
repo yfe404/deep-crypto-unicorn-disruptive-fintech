@@ -1,0 +1,19 @@
+* deep-crypto-unicorn-disruptive-fintech
+Geospatial deep learning tool for unicorn feeding 
+
+
+** Docker usage
+
+
+*** Build image
+
+#+BEGIN_SRC sh
+docker build -t trading:latest .
+#+END_SRC
+
+*** Run Bot
+
+#+BEGIN_SRC sh
+docker run -it trading python main.py
+#+END_SRC
+

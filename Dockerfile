@@ -17,6 +17,7 @@ ENV HOME /home/$NB_USER
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+ENV LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
 # Create unicorn user with UID=1000 and in the 'users' group
 RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
@@ -50,11 +51,27 @@ RUN cd /tmp && \
     ./configure --prefix=/usr && \
     make && \
     make install
- 
-COPY requirements.txt $HOME
-RUN cd
-RUN conda install --file requirements.txt
+
+
+
+
+WORKDIR /home/unicorn/work
+
 
 USER unicorn
 
+RUN pip install \
+chardet==3.0.3 \
+idna==2.5 \
+numpy==1.12.1 \
+pandas==0.20.1 \
+python-dateutil==2.6.0 \
+pytz==2017.2 \
+urllib3==1.21.1 \
+requests==2.17.3 \
+certifi==2017.4.17 \
+six==1.10.0 
 
+RUN pip install TA-Lib==0.4.10 
+
+COPY ./ /home/unicorn/work 
