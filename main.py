@@ -16,15 +16,19 @@ from requests.auth import AuthBase
 #API_SECRET = os.environ['GDAX_API_SECRET']
 #API_PASS = os.environ['GDAX_API_PASS']
 
-# YOLO Hardcode sandbox credentials
-#API_KEY = "eedbdb921b0ea5425cc575cec4f6d295"
-#API_SECRET = "ARZD+5zandRAB27tO/j/KGTWthxDR1m/aXdKtzsZ4C9CWvVVf5R6vPP5d//Dk7INDjmaVI6w61Z6p//tXl94vg=="
-#API_PASS = "ax55rmwaafl"
-
 # VIEW ONLY PUBLIC KEY
 API_KEY = "ca554f4040cd56adb1b625d63eaab096"
 API_SECRET = "kILvSj7TAsLfOHlhAo/0eoYJg7AGQ2U8RHmu4splW+Eb+Lgo20yhHPB2i4729N2zBIJiMJcXq3tXCTEICHbCyw=="
 API_PASS = "v2qdfkysrdf"
+
+
+#### Params
+product = 'BTC-USD'
+investment = 1000.0
+profit = 0.0
+reinvest_profit_rate=0.5
+
+
 
 # DEBUG mode
 DEBUG=True
@@ -54,59 +58,31 @@ class CoinbaseExchangeAuth(AuthBase):
         })
         return request
 
-# I want you to deal with your problems by becoming rich!
-
 def print_json(jayson):
     print(json.dumps(jayson, indent=4))
 
+
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
+
+# Get an auth token from coinbase
 auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
 
 ## fetch hist data
 r = requests.get(api_url + 'accounts', auth=auth)
 print_json(r.json())
 
-# Sell 0.01 BTC for 20 USD
-#order = {
-#    'size': 0.01,
-#    'price': 20.0,
-#    'side': 'sell',
-#    'product_id': 'BTC-USD',
-#}
-#r = requests.post(api_url + 'orders', json=order, auth=auth)
-#print_json(r.json())
-
-# Buy 0.01 BTC for 20 USD
-# Doesn't work -> stay in pending ?
-#order = {
-#    'size': 0.01,
-#    'price': 20.0,
-#    'side': 'buy',
-#    'product_id': 'BTC-USD',
-#}
-#r = requests.post(api_url + 'orders', json=order, auth=auth)
-#print_json(r.json())
-#
-## But 0.01 BTC at market price
-#order = {
-#    'type': 'market',
-#    'size': 0.01,
-#    'side': 'buy',
-#    'product_id': 'BTC-USD',
-#}
-#r = requests.post(api_url + 'orders', json=order, auth=auth)
-#print_json(r.json())
 
 # Flag that indicates if we have the traded asset in stock or not
 IS_STOCK_FULL=False
 cumulative_return = 0.0
-capital_under_management = 1000.0
+capital_under_management = investment
 stock_btc=0.0
+last_capital = capital_under_management
 
 while True:
 
-    
+
     # Get historic rates
     dtime_now = datetime.datetime.utcnow()
     dtime_past = dtime_now - datetime.timedelta(minutes=5)
@@ -117,7 +93,7 @@ while True:
         'granularity': 20,
     }
     
-    product = 'BTC-USD'
+
     r = requests.get(api_url + 'products/{}/candles'.format(product), params=params, auth=auth)
     print(params)
     #print_json(r.json())
@@ -128,24 +104,7 @@ while True:
         print(close_prices.shape)
     
     ## apply strategy 
-    
-    
-    
-    #
-    #def handle_data(context, data):
-    #    todays_date = get_datetime().date()
-    #    
-    #    # Do nothing unless the date has changed
-    #    if todays_date == context.date:
-    #        return
-    #    # Set the new date
-    #    context.date = todays_date
-    #
-    #    current_position = context.portfolio.positions[context.stock].amount
-    #
-        ## START LOOP ##
-    
-            
+  
     upper, middle, lower = talib.BBANDS(
         close_prices,
         timeperiod=10,
@@ -168,14 +127,15 @@ while True:
         print "Stock BTC: {}".format(stock_btc)
         print "Capital: {}".format(capital_under_management)
         print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
-    
-    
+    	print "Absolute Profit: {}".format(profit)
+	print "Profit to Investment: {}\%".format(profit/investment*100)
+
     if close_prices[-1] <= lower[-1] and not IS_STOCK_FULL:
         ## Buy max
-        stock_btc = 1000.0 / close_prices[-1]
-        capital_under_management = capital_under_management -1000.0
+        stock_btc = capital_under_management / close_prices[-1]
+        capital_under_management = 0.0
         IS_STOCK_FULL = True
-#        cumulative_return 
+
         if DEBUG:
             print ">>> BUY SIGNAL"
         
@@ -184,11 +144,18 @@ while True:
         # no short positions then invest the entire
         # portfolio value to short SPY
     elif close_prices[-1] >= upper[-1] and IS_STOCK_FULL:
-        capital_under_management = capital_under_management + close_prices[-1] * stock_btc
+	 ## short max
+        capital_under_management = close_prices[-1] * stock_btc
         stock_btc = 0.0
         IS_STOCK_FULL = False
 
-        ## short max
+	#Reinvest
+	profit += (last_capital-capital_under_management) * (1-reinvest_profit_rate)
+	if ( last_capital-capital_under_management > 0.0 ):
+		capital_under_management += (last_capital-capital_under_management)*reinvest_profit_rate
+	 
+
+       
         if DEBUG:
             print ">>> SELL SIGNAL"
     
