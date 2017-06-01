@@ -9,6 +9,7 @@ import os, json, requests, time, datetime
 import talib, pandas, numpy as np
 from coinbase import CoinbaseExchangeAuth
 from simulator import PortfolioSimulator
+import argparse
 
 def print_json(jayson):
     print(json.dumps(jayson, indent=4))
@@ -24,10 +25,22 @@ API_SECRET = "kILvSj7TAsLfOHlhAo/0eoYJg7AGQ2U8RHmu4splW+Eb+Lgo20yhHPB2i4729N2zBI
 API_PASS = "v2qdfkysrdf"
 
 # Params
-DEBUG = True
 product = 'BTC-USD'
 investment = 1000.0
 reinvest_rate = 0.5
+
+# parse options
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
+parser.add_argument("-y", "--yolo", action="store_true", help="output logs bescome crazy")
+
+parser.parse_args()
+if args.verbose:
+    print "verbosity turned on"
+    DEBUG = True
+elif args.yolo :
+    print "Crazy logs !!!!! $$$$ YOLO $$$$"
+    YOLO = True
 
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
@@ -41,6 +54,8 @@ simulator.set_balance('BTC', 0)
 simulator.set_balance('USD', investment)
 
 while True:
+    did_something = False
+
     ## Get historic rates
     dtime_now = datetime.datetime.utcnow()
     dtime_past = dtime_now - datetime.timedelta(minutes=15)
@@ -53,7 +68,7 @@ while True:
     rates_sorted = sorted(r.json(), key=lambda x: x[0])
     close_prices = np.array([x[4] for x in rates_sorted])
 
-    if DEBUG:
+    if YOLO:
         print(close_prices)
     
     ## Apply strategy 
@@ -66,16 +81,6 @@ while True:
         # Moving average type: simple moving average here
         matype=0)
         
-    if DEBUG:
-        print "Last close price: {}".format(close_prices[-1])
-        print "Upper / Middle / Lower bands: {} / {} / {}".format(upper[-1], middle[-1], lower[-1])
-        print "BTC balance: {} BTC".format(simulator.balance('BTC'))
-        print "BTC balance: {} USD (at last close price)".format(simulator.balance('BTC') * close_prices[-1])
-        print "USD balance: {} USD".format(simulator.balance('USD'))
-        # print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
-    	print "Profit: {}".format(simulator.balance('profit'))
-
-
     # If the last close price is under the lower band
     # and we have USD to buy BTC
     if close_prices[-1] <= lower[-1] and simulator.balance('USD') > 0:
@@ -85,6 +90,7 @@ while True:
         ## Buy all the BTC we can
         btc_qty = simulator.balance('USD') / close_prices[-1]
         simulator.buy(product, btc_qty, close_prices[-1])
+        did_something = True
 
     # If close_prices is above the recent upper band and we have
     # no short positions then invest the entire
@@ -96,12 +102,22 @@ while True:
         ## Sell all the BTC we have
         btc_qty = simulator.balance('BTC')
         simulator.sell(product, btc_qty, close_prices[-1])
+        did_something = True
 
     else:
         # Do Nothing
-        if DEBUG:
+        if YOLO:
             print "... do nothing"
         pass
+
+    if (DEBUG and did_something) or YOLO:
+        print "Last close price: {}".format(close_prices[-1])
+        print "Upper / Middle / Lower bands: {} / {} / {}".format(upper[-1], middle[-1], lower[-1])
+        print "BTC balance: {} BTC".format(simulator.balance('BTC'))
+        print "BTC balance: {} USD (at last close price)".format(simulator.balance('BTC') * close_prices[-1])
+        print "USD balance: {} USD".format(simulator.balance('USD'))
+        # print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
+        print "Profit: {}".format(simulator.balance('profit'))
             
     time.sleep(30)
     ## END LOOP ##    
