@@ -51,7 +51,8 @@ while True:
         'granularity': 60,
     }
     r = requests.get(api_url + 'products/{}/candles'.format(product), params=params, auth=auth)
-    close_prices = np.array([x[4] for x in r.json()])
+    rates_sorted = sorted(r.json(), key=lambda x: x[0])
+    close_prices = np.array([x[4] for x in rates_sorted])
 
     if DEBUG:
         print(close_prices)
