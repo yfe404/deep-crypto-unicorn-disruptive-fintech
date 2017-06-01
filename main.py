@@ -5,11 +5,11 @@
 # https://docs.gdax.com/?python
 
 # Include required libs
-import os, json, requests, time, datetime, sys
+import os, json, requests, time, datetime, sys, argparse
 import talib, pandas, numpy as np
 from coinbase import CoinbaseExchangeAuth
 from simulator import PortfolioSimulator
-import argparse
+from historic_rates_fetchers import *
 
 def print_json(jayson):
     print(json.dumps(jayson, indent=4))
@@ -36,6 +36,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", help="increase output verbosity",
                     action="store_true")
 parser.add_argument("-y", "--yolo", help="output logs become crazy", action="store_true")
+parser.add_argument("--dataset", help="load historic rates from file")
 args = parser.parse_args()
 if args.verbose:
     print "verbosity turned on"
@@ -45,32 +46,40 @@ if args.yolo:
     print "Crazy logs turned on ! Yolo !"
     YOLO = True
     DEBUG = True
+
+if args.dataset:
+    print('Using historic rates dataset')
+    MODE = 'dataset'
+else:
+    print('Using live rates from API')
+    MODE = 'api'
+
 sys.stdout.flush()
 
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
-
-# Get an auth token from coinbase
-auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
 
 # Setup simulator
 simulator = PortfolioSimulator(investment, reinvest_rate)
 simulator.set_balance('BTC', 0)
 simulator.set_balance('USD', investment)
 
+# Setup historic rate fetcher
+rate_fetcher = None
+
+if MODE == 'dataset':
+    rate_fetcher = CSVHistoricRateFetcher(args.dataset)
+else:
+    granularity = 60
+    auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
+    rate_fetcher = APIHistoricRateFetcher(api_url, auth, product, granularity)
+
 while True:
     did_something = False
 
     ## Get historic rates
-    dtime_now = datetime.datetime.utcnow()
-    dtime_past = dtime_now - datetime.timedelta(minutes=15)
-    params = {
-        'start': dtime_past.isoformat(),
-        'end': dtime_now.isoformat(),
-        'granularity': 60,
-    }
-    r = requests.get(api_url + 'products/{}/candles'.format(product), params=params, auth=auth)
-    rates_sorted = sorted(r.json(), key=lambda x: x[0])
+    window = 15*60 # 15 minutes
+    rates_sorted = rate_fetcher.next(window)
     close_prices = np.array([x[4] for x in rates_sorted])
 
     if YOLO:
@@ -127,5 +136,9 @@ while True:
         print "Profit: {}".format(simulator.balance('profit'))
 
     sys.stdout.flush()
-    time.sleep(30)
+
+    # Don't sleep in dataset mode
+    if MODE is 'api':
+        time.sleep(30)
+
     ## END LOOP ##    
