@@ -100,7 +100,14 @@ def test_run():
 
     observation, reward, done, info = env.step("NOTHING")
 
-    for i in range (3):
+    #for i in range (300):
+    i = 0
+    while(not done):
+        log("")
+        log ("$$$$$$$$$ Iteration {} $$$$$$$$$".format(i))
+        log("")
+                
+        i += 1 # ptain c'est crade
         old_state = observation
         observation, reward, done, info = env.step(chooseAction(Q, old_state))
 
@@ -111,8 +118,12 @@ def test_run():
                    learning_rate * (reward + discount_rate * Q[observation, \
                                                                np.argmax(Q[observation])])
 
+        prettyPrintQ(Q)
+        log("")
+        log ("$$$$$$$$$ $$$$$$$$$ $$$$$$$$$")
+        log("")
         
-        log("Q matrix = {}".format(Q))
+        #log("Q matrix = {}".format(Q))
 
 #        action = chooseAction(Q,state)
          
@@ -125,7 +136,25 @@ def test_run():
 #            Q[state, a] + \
 #            learning_rate * (reward + discount_rate * Q[next_state, np.argmax(Q[next_state])])
 
-         
+
+def prettyPrintQ(Q):
+    line = ["_", "\t", "_", "\t", "_"]
+    labels = [
+        "low & not long",
+        "low & long    ",
+        "med & not long",
+        "med & long    ",
+        "up & not long ",
+        "up & long     "
+        ]
+    linum = 0
+
+    log("                BUY\tSELL\tNOTHING")
+    for i in range(6):
+        l = line[:]
+        l[np.argmax(Q[i]) * 2] = "X"
+        log(labels[i] + "\t" + "".join(l))
+
 def chooseAction(Q, state):
     ACTIONS = ['BUY', 'SELL', 'NOTHING']
     return ACTIONS[np.argmax(Q[state])]
