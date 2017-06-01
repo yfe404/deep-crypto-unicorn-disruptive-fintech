@@ -33,11 +33,11 @@ class PortfolioSimulator:
         self.__update_balance(currency2, amount)
 
         #update profit & reinvest some
-        profit = amount - previous_sell_result
+        profit = amount - self.previous_sell_result
         if (profit > 0.0):
             self.__update_balance(currency2, profit * self.reinvest_percentage ) 
             self.__update_balance("profit", profit * (1-self.reinvest_percentage))
-        previous_sell_result = amount
+        self.previous_sell_result = amount
 
         print('[Simulator] Selling {} {} at {} {} each').format(quantity, currency1, price, currency2)
         print('[Simulator] Total earnings = {} {}').format(amount, currency2)
