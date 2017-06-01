@@ -42,7 +42,8 @@ while current_date < end_date:
     try:
         params = {'start': current_date.isoformat(), 'end': intermediate_date.isoformat(), 'granularity': granularity}
         r = requests.get(API_URL + 'products/{}/candles'.format(product), params=params, auth=auth)
-        result.extend(r.json())
+        if r.status_code == 200:
+            result.extend(r.json())
     except requests.exceptions.RequestException as e:
         eprint('Exception: {}'.format(e))
 
