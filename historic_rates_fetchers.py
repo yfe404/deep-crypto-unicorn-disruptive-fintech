@@ -35,18 +35,21 @@ class CSVHistoricRateFetcher:
             table = list(reader)
             print('Sorting rates...')
             self.table = sorted(table, key=lambda x: x[0])
+            self.table_len = len(table)
 
         self.cur = 0
 
     # Window in seconds (pay attention to CSV granularity...)
     def next(self, window):
-        result = []
+        if self.cur >= self.table_len:
+            return []
 
+        result = []
         tmp_cur = self.cur
         start_timestamp = self.table[tmp_cur][0]
         cur_timestamp = self.table[tmp_cur][0]
 
-        while cur_timestamp < (start_timestamp + window):
+        while cur_timestamp < (start_timestamp + window) and tmp_cur < self.table_len:
             result.append(self.table[tmp_cur])
             tmp_cur += 1
             cur_timestamp = self.table[tmp_cur][0]
