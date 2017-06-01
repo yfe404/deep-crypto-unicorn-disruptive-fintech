@@ -14,7 +14,14 @@ docker build -t trading:latest .
 *** Run Bot
 
 #+BEGIN_SRC sh
-docker run -it trading python main.py
+docker run -it trading python main.py --help
+usage: main.py [-h] [-v] [-y]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  increase output verbosity
+  -y, --yolo     output logs bescome crazy
+
 #+END_SRC
 
 *** Downloader usage
@@ -48,13 +55,13 @@ simulator = PortfolioSimulator()
 
 simulator.buy('BTC-USD', 1, 1000)
 # [Simulator] Buying 1 BTC at 1000 USD each
-# [Simulator] Total price = 1000 USD + 2.5 USD (fees)
-# [Simulator] BTC balance = 1 BTC
-# [Simulator] USD balance = -1002.5 USD
+# [Simulator] Fees = 2.5 USD (0.0025 BTC)
+# [Simulator] BTC balance = 0.9975 BTC
+# [Simulator] USD balance = 0 USD
 
-simulator.sell('BTC-USD', 1, 1000)
-# [Simulator] Selling 1 BTC at 1000 USD each
-# [Simulator] Total earnings = 1000 USD - 2.5 USD (fees)
-# [Simulator] BTC balance = 0 BTC
-# [Simulator] USD balance = -5.0 USD
+simulator.sell('BTC-USD', 0.9975, 1000)
+# [Simulator] Selling 0.9975 BTC at 1000 USD each
+# [Simulator] Total earnings = 997.5 USD
+# [Simulator] BTC balance = 0.0 BTC
+# [Simulator] USD balance = 997.5 USD
 #+END_SRC

@@ -3,8 +3,11 @@
 class PortfolioSimulator:
     FEES_RATIO = (0.25/100) # 0.25% fees
 
-    def __init__(self):
+    def __init__(self, investment, reinvest):
         self.balances = {}
+        self.balances["profit"] = 0
+        self.previous_sell_result = investment
+        self.reinvest_percentage = reinvest
 
     def buy(self, product, quantity, price):
         currency1, currency2 = product.split('-')
@@ -28,6 +31,13 @@ class PortfolioSimulator:
 
         self.__update_balance(currency1, -quantity)
         self.__update_balance(currency2, amount)
+
+        #update profit & reinvest some
+        profit = amount - previous_sell_result
+        if (profit > 0.0):
+            self.__update_balance(currency2, profit * self.reinvest_percentage ) 
+            self.__update_balance("profit", profit * (1-self.reinvest_percentage))
+        previous_sell_result = amount
 
         print('[Simulator] Selling {} {} at {} {} each').format(quantity, currency1, price, currency2)
         print('[Simulator] Total earnings = {} {}').format(amount, currency2)
