@@ -1,17 +1,21 @@
-import csv, datetime, requests
+from __future__ import division
+import csv, math, time, datetime, requests
 
+# Granularity and Window parameters are in seconds
 
 class APIHistoricRateFetcher:
 
-    # Granularity in seconds
     def __init__(self, api_url, auth, product, granularity):
         self.api_url = api_url
         self.auth = auth
         self.product = product
         self.granularity = granularity
 
-    # Window in seconds
     def next(self, window):
+        requested_points = math.ceil(window / self.granularity)
+        if requested_points > 200:
+            print('[APIHistoricRateFetcher] WARN: Requesting more than 200 data points. API request will likely fail.')
+
         dtime_now = datetime.datetime.utcnow()
         dtime_past = dtime_now - datetime.timedelta(seconds=window)
 
@@ -21,7 +25,23 @@ class APIHistoricRateFetcher:
             'granularity': self.granularity,
         }
         r = requests.get(self.api_url + 'products/{}/candles'.format(self.product), params=params, auth=self.auth)
-        return sorted(r.json(), key=lambda x: x[0])
+
+        if r.status_code != 200:
+            print('[APIHistoricRateFetcher] ERROR: Non-200 status code from API: {} / {}'.format(r.content))
+            return []
+
+        rates = sorted(r.json(), key=lambda x: x[0])
+
+        if len(rates) < requested_points:
+            print('[APIHistoricRateFetcher] WARN: API returned less points than expected.')
+        elif len(rates) > requested_points:
+            print('[APIHistoricRateFetcher] WARN: API returned more points than expected. Output will be truncated to requested window.')
+            # TODO: Cleanup
+            timestamp_start = (dtime_past - datetime.datetime(1970,1,1)).total_seconds()
+            timestamp_end = (dtime_now - datetime.datetime(1970,1,1)).total_seconds()
+            rates = [x for x in rates if x[0] >= timestamp_start and x[0] <= timestamp_end]
+
+        return rates
 
 
 class CSVHistoricRateFetcher:
@@ -40,7 +60,7 @@ class CSVHistoricRateFetcher:
 
         self.cur = 0
 
-    # Window in seconds (pay attention to CSV granularity...)
+    # Pay attention to CSV granularity...
     def next(self, window):
         if self.cur >= self.table_len - 1:
             return []
