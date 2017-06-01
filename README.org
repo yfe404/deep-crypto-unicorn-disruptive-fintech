@@ -15,13 +15,13 @@ docker build -t trading:latest .
 
 #+BEGIN_SRC sh
 docker run -it trading python main.py --help
-usage: main.py [-h] [-v] [-y]
+usage: main.py [-h] [-v] [-y] [--dataset DATASET]
 
 optional arguments:
   -h, --help     show this help message and exit
   -v, --verbose  increase output verbosity
   -y, --yolo     output logs bescome crazy
-
+  --dataset DATASET  load historic rates from file
 #+END_SRC
 
 *** Downloader usage
