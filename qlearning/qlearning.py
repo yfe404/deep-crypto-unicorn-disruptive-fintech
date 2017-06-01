@@ -101,15 +101,38 @@ def test_run():
         
         log("2 - Select an action")
         action = chooseAction(Q,state)
-
         log("Action chosen is {}".format(action))
+        
+        log("3 - Observing reward and next state")
+        log("TODO")
 
+        log("4 - update Q")
+        #gamma : discount rate 
+        #alpha: learning rate
+        #Q'[s,a] = (1 - alpha) * Q[s,a] + alpha*(r+gamma*Q[s', argmaxa'(Q[s',a']))
+        
+        learning_rate = 0.3
+        discount_rate = 0.3
+        reward = 1.0 # constant to test
+        next_state = 1 # constant to test
+
+        a = np.argmax(Q[state])
+        Q[state, a] = \
+            (1 - learning_rate) * \
+            Q[state, a] + \
+            learning_rate * (reward + discount_rate * Q[next_state, np.argmax(Q[next_state])])
+
+        log("Q matrix = {}".format(Q))
+        
 def chooseAction(Q, state):
     ACTIONS = ['BUY', 'SELL', 'NOTHING']
-    log(np.argmax(Q[state]))
     return ACTIONS[np.argmax(Q[state])]
 
 
+def applyAction(current):
+    ## La flemme je sais meme pas ce que je vais mettre en prototype
+    ## J'ai mis current au pif, j'aurais aussi bien pu mettre diplodocus
+    pass
 
 
 
@@ -128,14 +151,9 @@ def compute_state(bb25_lower, bb25_upper, close_price, holding_position):
     if isAbove:
         return 5 if holding_position else 4
 
-    
-
-
-
 
 if __name__ == "__main__":
     test_run()
-    
 
 
 """ 
