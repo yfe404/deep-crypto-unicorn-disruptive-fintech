@@ -27,8 +27,7 @@ API_PASS = "v2qdfkysrdf"
 DEBUG = True
 product = 'BTC-USD'
 investment = 1000.0
-#profit = 0.0
-#reinvest_profit_rate = 0.5
+reinvest_rate = 0.5
 
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
@@ -37,7 +36,7 @@ api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 auth = CoinbaseExchangeAuth(API_KEY, API_SECRET, API_PASS)
 
 # Setup simulator
-simulator = PortfolioSimulator()
+simulator = PortfolioSimulator(investment, reinvest_rate)
 simulator.set_balance('BTC', 0)
 simulator.set_balance('USD', investment)
 
@@ -74,8 +73,8 @@ while True:
         print "BTC balance: {} USD (at last close price)".format(simulator.balance('BTC') * close_prices[-1])
         print "USD balance: {} USD".format(simulator.balance('USD'))
         # print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
-    	#print "Absolute Secured Profit: {}".format(profit)
-	#print "Secured Profit to Investment: {}%".format(profit/investment*100)
+    	print "Profit: {}".format(simulator.balance('profit'))
+
 
     # If the last close price is under the lower band
     # and we have USD to buy BTC
@@ -98,15 +97,6 @@ while True:
         btc_qty = simulator.balance('BTC')
         simulator.sell(product, btc_qty, close_prices[-1])
 
-	## Reinvest
-        # TODO: Reimplement
-#	if ( capital_under_management-last_capital > 0.0 ):
-#		print "<<< $$ MADE : {}".format(capital_under_management-last_capital)
-#		profit += (capital_under_management-last_capital) * (1-reinvest_profit_rate)
-#		capital_under_management += (capital_under_management-last_capital)*reinvest_profit_rate
-#	 	last_capital = capital_under_management
-#
-       
     else:
         # Do Nothing
         if DEBUG:
