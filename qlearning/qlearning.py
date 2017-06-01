@@ -1,7 +1,12 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+
 import util as utl
 import pandas as pd
 import numpy as np
 import math
+import talib
 
 DEBUG=True
 
@@ -11,14 +16,21 @@ class Environment:
         self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
         self.state_idx = 0
         self.long_positions = False
+        self.close_prices = self.data['close'].values
 
-        window = 5
-        self.sma_5 = utl.get_rolling_mean(df.close, window)
-        rstd_5 = utl.get_rolling_std(df.close, window)
-        self.upper_band_5, self.lower_band_5 = utl.get_bollinger_bands(self.sma_5, rstd_5)
+        self.upper_band_5, \
+        self.sma_5, \
+        self.lower_band_5 = talib.BBANDS(
+            self.close_prices,
+            timeperiod=5,
+            # number of non-biased standard deviations from the mean
+            nbdevup=2,
+            nbdevdn=2,
+            # Moving average type: simple moving average here
+            matype=0)
 
-        self.returns = np.zeros(len(data))
-        self.returns[1:] = (df.loc[1:, 'close'] / df['close'][:-1].values)-1
+        self.returns = np.zeros(len(self.data))
+        self.returns[1:] = (self.close_prices[1:] / self.close_prices[:-1])-1
 
 
     def reset(self):
@@ -54,11 +66,11 @@ class Environment:
            or math.isnan(self.lower_band_5[self.state_idx]):
             return 3 if self.long_positions else 2
 
-        isAbove = self.data.loc[self.state_idx, 'close'] > self.upper_band_5
-        isBelow = self.data.loc[self.state_idx, 'close'] < self.lower_band_5
+        isAbove = self.close_prices[self.state_idx] > self.upper_band_5
+        isBelow = self.close_prices[self.state_idx] < self.lower_band_5
         isBetween = \
-                    self.data.loc[self.state_idx, 'close'] <= self.upper_band_5 \
-                    and self.data.loc[self.state_idx, 'close'] >= self.lower_band_5
+                    self.close_prices[self.state_idx] <= self.upper_band_5 \
+                    and self.close_prices[self.state_idx] >= self.lower_band_5
 
         if isBetween:
             return 3 if self.long_positions else 2
