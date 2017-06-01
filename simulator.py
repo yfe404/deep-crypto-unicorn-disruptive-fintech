@@ -5,9 +5,9 @@ class PortfolioSimulator:
 
     def __init__(self, investment, reinvest):
         self.balances = {}
-		self.balances["profit"] = 0
-		self.previous_sell_result = investment
-		self.reinvest_percentage = reinvest
+        self.balances["profit"] = 0
+        self.previous_sell_result = investment
+        self.reinvest_percentage = reinvest
 
     def buy(self, product, quantity, price):
         currency1, currency2 = product.split('-')
