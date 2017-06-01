@@ -98,6 +98,20 @@ def test_run():
         log("BB25 upper: {}".format(bb25_upper))
         log("Is holding position: {}".format(holding_position))
         log("Corresponding state is : {}".format(state))
+        
+        log("2 - Select an action")
+        action = chooseAction(Q,state)
+
+        log("Action chosen is {}".format(action))
+
+def chooseAction(Q, state):
+    ACTIONS = ['BUY', 'SELL', 'NOTHING']
+    log(np.argmax(Q[state]))
+    return ACTIONS[np.argmax(Q[state])]
+
+
+
+
 
 def compute_state(bb25_lower, bb25_upper, close_price, holding_position):
     if math.isnan(bb25_lower) or math.isnan(bb25_upper):
