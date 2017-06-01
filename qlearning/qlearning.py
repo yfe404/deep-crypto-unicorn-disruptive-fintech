@@ -1,7 +1,12 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+
 import util as utl
 import pandas as pd
 import numpy as np
 import math
+import talib
 
 DEBUG=True
 
@@ -11,14 +16,21 @@ class Environment:
         self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
         self.state_idx = 0
         self.long_positions = False
+        self.close_prices = self.data['close'].values
 
-        window = 5
-        self.sma_5 = utl.get_rolling_mean(df.close, window)
-        rstd_5 = utl.get_rolling_std(df.close, window)
-        self.upper_band_5, self.lower_band_5 = utl.get_bollinger_bands(self.sma_5, rstd_5)
+        self.upper_band_5, \
+        self.sma_5, \
+        self.lower_band_5 = talib.BBANDS(
+            self.close_prices,
+            timeperiod=5,
+            # number of non-biased standard deviations from the mean
+            nbdevup=2,
+            nbdevdn=2,
+            # Moving average type: simple moving average here
+            matype=0)
 
-        self.returns = np.zeros(len(data))
-        self.returns[1:] = (df.loc[1:, 'close'] / df['close'][:-1].values)-1
+        self.returns = np.zeros(len(self.data))
+        self.returns[1:] = (self.close_prices[1:] / self.close_prices[:-1])-1
 
 
     def reset(self):
@@ -54,11 +66,11 @@ class Environment:
            or math.isnan(self.lower_band_5[self.state_idx]):
             return 3 if self.long_positions else 2
 
-        isAbove = self.data.loc[self.state_idx, 'close'] > self.upper_band_5
-        isBelow = self.data.loc[self.state_idx, 'close'] < self.lower_band_5
+        isAbove = self.close_prices[self.state_idx] > self.upper_band_5[self.state_idx]
+        isBelow = self.close_prices[self.state_idx] < self.lower_band_5[self.state_idx]
         isBetween = \
-                    self.data.loc[self.state_idx, 'close'] <= self.upper_band_5 \
-                    and self.data.loc[self.state_idx, 'close'] >= self.lower_band_5
+                    self.close_prices[self.state_idx] <= self.upper_band_5[self.state_idx] \
+                    and self.close_prices[self.state_idx] >= self.lower_band_5[self.state_idx]
 
         if isBetween:
             return 3 if self.long_positions else 2
@@ -74,16 +86,33 @@ def log(message):
 
 def test_run():
 
+    log("Init Q w/ random values")
+    Q = np.random.normal(size=(6,3))  ## 3 actions * 6 states (just to try, there will be much more")
+    log("Q matrix = {}".format(Q))
+
+    learning_rate = 0.3
+    discount_rate = 0.3
+  
+
+
     env = Environment()
     env.reset()
 
-    observation, reward, done, info = env.step(None)
+    observation, reward, done, info = env.step("NOTHING")
 
-    print observation, reward
-    
-    log("Init Q w/ random values")
-    Q = np.random.normal(size=(5,3))  ## 3 actions * 5 states (just to try, there will be much more")
-    log("Q matrix = {}".format(Q))
+    for i in range (3):
+        old_state = observation
+        observation, reward, done, info = env.step(chooseAction(Q, old_state))
+
+        a = np.argmax(Q[old_state])
+        Q[old_state, a] = \
+                   (1 - learning_rate) * \
+                   Q[old_state, a] + \
+                   learning_rate * (reward + discount_rate * Q[observation, \
+                                                               np.argmax(Q[observation])])
+
+        
+        log("Q matrix = {}".format(Q))
 
 #        action = chooseAction(Q,state)
          
