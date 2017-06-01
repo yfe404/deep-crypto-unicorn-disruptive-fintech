@@ -5,7 +5,7 @@
 # https://docs.gdax.com/?python
 
 # Include required libs
-import os, json, requests, time, datetime
+import os, json, requests, time, datetime, sys
 import talib, pandas, numpy as np
 from coinbase import CoinbaseExchangeAuth
 from simulator import PortfolioSimulator
@@ -29,18 +29,23 @@ product = 'BTC-USD'
 investment = 1000.0
 reinvest_rate = 0.5
 
-# parse options
+# parse arguments
+DEBUG = False
+YOLO = False
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
-parser.add_argument("-y", "--yolo", action="store_true", help="output logs bescome crazy")
-
-parser.parse_args()
+parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+parser.add_argument("-y", "--yolo", help="output logs become crazy", action="store_true")
+args = parser.parse_args()
 if args.verbose:
     print "verbosity turned on"
     DEBUG = True
-elif args.yolo :
-    print "Crazy logs !!!!! $$$$ YOLO $$$$"
+
+if args.yolo:
+    print "Crazy logs turned on ! Yolo !"
     YOLO = True
+    DEBUG = True
+sys.stdout.flush()
 
 api_url = 'https://api.gdax.com/' # <----- REAL MONEY $$$
 # api_url = 'https://api-public.sandbox.gdax.com/'
@@ -110,14 +115,17 @@ while True:
             print "... do nothing"
         pass
 
-    if (DEBUG and did_something) or YOLO:
+
+    if YOLO:
         print "Last close price: {}".format(close_prices[-1])
         print "Upper / Middle / Lower bands: {} / {} / {}".format(upper[-1], middle[-1], lower[-1])
+    if(DEBUG and did_something) or YOLO:
         print "BTC balance: {} BTC".format(simulator.balance('BTC'))
         print "BTC balance: {} USD (at last close price)".format(simulator.balance('BTC') * close_prices[-1])
         print "USD balance: {} USD".format(simulator.balance('USD'))
         # print "Portfolio value: {}".format(capital_under_management + stock_btc * close_prices[-1])
         print "Profit: {}".format(simulator.balance('profit'))
-            
+
+    sys.stdout.flush()
     time.sleep(30)
     ## END LOOP ##    
