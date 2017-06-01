@@ -9,16 +9,39 @@ def log(message):
 
 def test_run():
     # load training data 
+    log("Loading Data")
     df = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
     log("########## Training set head ##########")
     log(df.head(5))
+
+    log("Cleaning Data - Removing unused columns.....")
+    # Removing unused columns 
+    for colname in ["low", "high", "open", "volume"]:
+        df.drop(colname, axis=1, inplace=True)
+    log("########## Training set head ##########")
+    log(df.head(5))
+    
+
+    # append states info aka features 
+    log("Building World OKLM #God #Jesus #7daysIsForLosers.....")
+    log("Adding SMA 25, 50, 75, 100")
+    log("Adding Bollinger Bands 25, 50, 75, 100")
+    for window in range(25, 101, 25):
+        rm = utl.get_rolling_mean(df.close, window)
+        rstd = utl.get_rolling_std(df.close, window)
+        upper_band, lower_band = utl.get_bollinger_bands(rm, rstd)
+        df["s_sma{}".format(window)] = rm
+        df["s_bb{}_lower".format(window)] = lower_band
+        df["s_bb{}_upper".format(window)] = upper_band
+    log("########## Training set tail ##########")
+    log(df.tail(5))
 
 
 if __name__ == "__main__":
     test_run()
     
 
-# append states info aka features 
+
 """ 
 Features
 adjusted cose / SMA
