@@ -5,23 +5,63 @@ import math
 
 DEBUG=True
 
+
+class Environment:
+    def __init__(self):
+        self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
+        self.state_idx = 0
+        self.long_positions = 0
+
+        window = 5
+        self.sma_5 = utl.get_rolling_mean(df.close, window)
+        rstd_5 = utl.get_rolling_std(df.close, window)
+        self.upper_band_5, self.lower_band_5 = utl.get_bollinger_bands(self.sma_5, rstd_5)
+
+
+    def reset(self):
+        self.state_idx = 0
+        self.long_positions = 0
+
+
+    def step(self, action):
+        self.state_idx = self.state_idx + 1
+
+        observation = None
+        reward = None
+        done = self.state_idx >= len(self.data)
+        info = None
+        
+        return observation, reward, done, info
+
+
+
+    def __compute_state(self):
+        if math.isnan(self.upper_band_5[) or math.isnan(bb25_upper):
+            return 3 if holding_position else 2
+
+        isAbove = close_price > bb25_upper
+        isBelow = close_price < bb25_lower
+        isBetween = close_price <= bb25_upper and close_price >= bb25_lower
+
+        if isBetween:
+            return 3 if holding_position else 2
+        if isBelow:
+            return 1 if holding_position else 0
+        if isAbove:
+            return 5 if holding_position else 4
+
+
+
+    
 def log(message):
     if DEBUG:
         print message
 
 def test_run():
-    # load training data 
-    log("Loading Data")
-    df = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
-    log("########## Training set head ##########")
-    log(df.head(5))
 
-    log("Cleaning Data - Removing unused columns.....")
-    # Removing unused columns 
-    for colname in ["low", "high", "open", "volume"]:
-        df.drop(colname, axis=1, inplace=True)
-    log("########## Training set head ##########")
-    log(df.head(5))
+    env = Environment()
+    env.reset()
+    
     
 
     # append states info aka features 
@@ -101,41 +141,45 @@ def test_run():
         
         log("2 - Select an action")
         action = chooseAction(Q,state)
-
         log("Action chosen is {}".format(action))
+        
+        log("3 - Observing reward and next state")
+        log("TODO")
 
+        log("4 - update Q")
+        #gamma : discount rate 
+        #alpha: learning rate
+        #Q'[s,a] = (1 - alpha) * Q[s,a] + alpha*(r+gamma*Q[s', argmaxa'(Q[s',a']))
+        
+        learning_rate = 0.3
+        discount_rate = 0.3
+        reward = 1.0 # constant to test
+        next_state = 1 # constant to test
+
+        a = np.argmax(Q[state])
+        Q[state, a] = \
+            (1 - learning_rate) * \
+            Q[state, a] + \
+            learning_rate * (reward + discount_rate * Q[next_state, np.argmax(Q[next_state])])
+
+        log("Q matrix = {}".format(Q))
+        
 def chooseAction(Q, state):
     ACTIONS = ['BUY', 'SELL', 'NOTHING']
-    log(np.argmax(Q[state]))
     return ACTIONS[np.argmax(Q[state])]
 
 
+def applyAction(current):
+    ## La flemme je sais meme pas ce que je vais mettre en prototype
+    ## J'ai mis current au pif, j'aurais aussi bien pu mettre diplodocus
+    pass
 
-
-
-def compute_state(bb25_lower, bb25_upper, close_price, holding_position):
-    if math.isnan(bb25_lower) or math.isnan(bb25_upper):
-        return 3 if holding_position else 2
-
-    isAbove = close_price > bb25_upper
-    isBelow = close_price < bb25_lower
-    isBetween = close_price <= bb25_upper and close_price >= bb25_lower
-
-    if isBetween:
-        return 3 if holding_position else 2
-    if isBelow:
-        return 1 if holding_position else 0
-    if isAbove:
-        return 5 if holding_position else 4
-
-    
 
 
 
 
 if __name__ == "__main__":
     test_run()
-    
 
 
 """ 
