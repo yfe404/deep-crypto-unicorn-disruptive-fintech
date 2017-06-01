@@ -1,5 +1,6 @@
 import util as utl
 import pandas as pd
+import numpy as np
 
 DEBUG=True
 
@@ -30,9 +31,9 @@ def test_run():
         rm = utl.get_rolling_mean(df.close, window)
         rstd = utl.get_rolling_std(df.close, window)
         upper_band, lower_band = utl.get_bollinger_bands(rm, rstd)
-        df["s_sma{}".format(window)] = rm
-        df["s_bb{}_lower".format(window)] = lower_band
-        df["s_bb{}_upper".format(window)] = upper_band
+        df["s_sma{}".format(window)] = rm 
+        df["s_bb{}_lower".format(window)] = lower_band 
+        df["s_bb{}_upper".format(window)] = upper_band 
     log("########## Training set tail ##########")
     log(df.tail(5))
 
@@ -53,6 +54,20 @@ def test_run():
 
     log("########## Training set tail ##########")
     log(df.tail(5))
+
+    # normalize / discretize features 
+#    log("# normalize / discretize features ")
+#    columns_to_norm = [col for col in df.columns if col not in ['time', 'holding_stock', 'returns']]
+#    df_norm = (df[columns_to_norm] - df[columns_to_norm].mean()) / (df[columns_to_norm].max() - df[columns_to_norm].min())
+    
+    log("Setting start time")
+    start_time = df.loc[0, 'time']
+    log("start time = {}".format(start_time))
+    
+    log("Init Q w/ random values")
+    Q = np.random.normal(size=(10,3))  ## 3 actions * 10 states (just to try, there will be much more")
+    log("Q matrix = {}".format(Q))
+
 
 
 
