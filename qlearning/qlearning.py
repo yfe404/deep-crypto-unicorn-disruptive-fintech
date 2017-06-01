@@ -36,6 +36,22 @@ def test_run():
     log("########## Training set tail ##########")
     log(df.tail(5))
 
+    log("Adding returns")
+#    @todo: change function name as it is not use in the context of inter day trading 
+    # compute daily returns for row 1 onwards
+    df['returns'] = df['close']
+    df.loc[1:, 'returns'] = (df.loc[1:, 'close'] / df['close'][:-1].values)-1
+
+    df.loc[0, 'returns'] = 0 # set daily returns for row 0 to 0
+
+
+    log("########## Training set head ##########")
+    log(df.head(5))
+
+    log("########## Training set tail ##########")
+    log(df.tail(5))
+
+
 
 if __name__ == "__main__":
     test_run()
