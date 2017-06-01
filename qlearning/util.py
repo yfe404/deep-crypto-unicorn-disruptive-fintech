@@ -2,6 +2,8 @@
 
 import os
 import pandas as pd
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt 
 
 def symbol_to_path(symbol, base_dir="data"):
@@ -84,7 +86,6 @@ def get_bollinger_bands(rm, rstd):
     upper_band = rm + rstd * 2
     lower_band = rm - rstd * 2
     return upper_band, lower_band
-
 
 def test_run():
     # Define a date range
