@@ -70,7 +70,8 @@ pytz==2017.2 \
 urllib3==1.21.1 \
 requests==2.17.3 \
 certifi==2017.4.17 \
-six==1.10.0 
+six==1.10.0 \
+matplotlib
 
 RUN pip install TA-Lib==0.4.10 
 
