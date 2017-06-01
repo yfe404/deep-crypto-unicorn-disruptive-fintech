@@ -10,6 +10,7 @@ import talib, pandas, numpy as np
 from coinbase import CoinbaseExchangeAuth
 from simulator import PortfolioSimulator
 from historic_rates_fetchers import *
+from rates_helpers import *
 
 def print_json(jayson):
     print(json.dumps(jayson, indent=4))
@@ -80,6 +81,9 @@ while True:
     ## Get historic rates
     window = 15*60 # 15 minutes
     rates_sorted = rate_fetcher.next(window)
+    # Don't interpolate in dataset mode
+    if MODE == 'api':
+        rates_sorted = resample_rates(rates_sorted, granularity)
     close_prices = np.array([x[4] for x in rates_sorted])
 
     if YOLO:
