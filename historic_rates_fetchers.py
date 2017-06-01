@@ -1,12 +1,13 @@
-import csv, requests
+import csv, datetime, requests
 
 
 class APIHistoricRateFetcher:
 
     # Granularity in seconds
-    def __init__(self, api_url, auth, granularity):
+    def __init__(self, api_url, auth, product, granularity):
         self.api_url = api_url
         self.auth = auth
+        self.product = product
         self.granularity = granularity
 
     # Window in seconds
@@ -19,7 +20,7 @@ class APIHistoricRateFetcher:
             'end': dtime_now.isoformat(),
             'granularity': self.granularity,
         }
-        r = requests.get(self.api_url + 'products/{}/candles'.format(product), params=params, auth=self.auth)
+        r = requests.get(self.api_url + 'products/{}/candles'.format(self.product), params=params, auth=self.auth)
         return sorted(r.json(), key=lambda x: x[0])
 
 
