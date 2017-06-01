@@ -1,6 +1,7 @@
 import util as utl
 import pandas as pd
 import numpy as np
+import math
 
 DEBUG=True
 
@@ -60,13 +61,60 @@ def test_run():
 #    columns_to_norm = [col for col in df.columns if col not in ['time', 'holding_stock', 'returns']]
 #    df_norm = (df[columns_to_norm] - df[columns_to_norm].mean()) / (df[columns_to_norm].max() - df[columns_to_norm].min())
     
+    ACTIONS = ['BUY', 'SELL', 'NOTHING']
+    STATES = [0, 1, 2, 3, 4, 5]
+    ## STATES : 
+    ### 0: close price < lower band 25 && and not holding position 
+    ### 1: close price < lower band 25 && and holding position 
+    ### 2: close price > lower band 25 and close price < upper band 25 && and not holding position 
+    ### 3: close price > lower band 25 and close price < upper band 25 && and holding position 
+    ### 4: close price > upper band 25 && and not holding position 
+    ### 5: close price > upper band 25 && and holding position 
+
+    
     log("Setting start time")
-    start_time = df.loc[0, 'time']
-    log("start time = {}".format(start_time))
+    start_idx = 23
+    log("start index = {}".format(start_idx))
     
     log("Init Q w/ random values")
-    Q = np.random.normal(size=(10,3))  ## 3 actions * 10 states (just to try, there will be much more")
+    Q = np.random.normal(size=(5,3))  ## 3 actions * 5 states (just to try, there will be much more")
     log("Q matrix = {}".format(Q))
+
+    for cursor in range (start_idx, start_idx+3):
+
+        timestamp = df.loc[cursor, 'time']
+        bb25_lower = df.loc[cursor, 's_bb25_lower']
+        bb25_upper = df.loc[cursor, 's_bb25_upper']
+        close_price = df.loc[cursor, 'close']
+        holding_position = df.loc[cursor, 'holding_stock'] == 1
+
+        state = compute_state(bb25_lower, bb25_upper, close_price, holding_position)
+
+        log("$$$$$$$$$ Iteration {}: $$$$$$$$$".format(cursor-start_idx))
+        log("1 - Reading state")
+        log("Timestamp: {}".format(timestamp))
+        log("BB25 lower: {}".format(bb25_lower))
+        log("close price: {}".format(close_price))
+        log("BB25 upper: {}".format(bb25_upper))
+        log("Is holding position: {}".format(holding_position))
+        log("Corresponding state is : {}".format(state))
+
+def compute_state(bb25_lower, bb25_upper, close_price, holding_position):
+    if math.isnan(bb25_lower) or math.isnan(bb25_upper):
+        return 3 if holding_position else 2
+
+    isAbove = close_price > bb25_upper
+    isBelow = close_price < bb25_lower
+    isBetween = close_price <= bb25_upper and close_price >= bb25_lower
+
+    if isBetween:
+        return 3 if holding_position else 2
+    if isBelow:
+        return 1 if holding_position else 0
+    if isAbove:
+        return 5 if holding_position else 4
+
+    
 
 
 
