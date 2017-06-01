@@ -42,7 +42,7 @@ class CSVHistoricRateFetcher:
 
     # Window in seconds (pay attention to CSV granularity...)
     def next(self, window):
-        if self.cur >= self.table_len:
+        if self.cur >= self.table_len - 1:
             return []
 
         result = []
@@ -50,7 +50,7 @@ class CSVHistoricRateFetcher:
         start_timestamp = self.table[tmp_cur][0]
         cur_timestamp = self.table[tmp_cur][0]
 
-        while cur_timestamp < (start_timestamp + window) and tmp_cur < self.table_len:
+        while cur_timestamp < (start_timestamp + window) and tmp_cur < self.table_len - 1:
             result.append(self.table[tmp_cur])
             tmp_cur += 1
             cur_timestamp = self.table[tmp_cur][0]
