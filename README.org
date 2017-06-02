@@ -65,3 +65,26 @@ simulator.sell('BTC-USD', 0.9975, 1000)
 # [Simulator] BTC balance = 0.0 BTC
 # [Simulator] USD balance = 997.5 USD
 #+END_SRC
+
+*** Run Jupyter 
+
+To run jupyter-notebook in the container with the web interface accessible from within the browser 
+of the host machine:
+
+#+BEGIN_SRC sh
+sudo docker run -p 8888:8888 -v $(pwd):/home/unicorn/data trading  \
+jupyter-notebook --ip=0.0.0.0 --port=8888  --notebook-dir=/home/unicorn/data
+#+END_SRC
+
+You'll then be able to access the interface at http://localhost:8888/ 
+
+You'll be asked to enter a token, this token is visible in the terminal a few seconds after having
+launch the above command.
+
+
+Note that this command will also mount the local directory (from which the command is launch,
+typically from this repository) to =/home/unicorn/data=. This allows you to persists you work achieved
+through the web interface.
+
+
+See [[https://docs.docker.com][Docker documentation]] for more information about the options used.
