@@ -73,6 +73,7 @@ certifi==2017.4.17 \
 six==1.10.0 \
 matplotlib
 
-RUN pip install TA-Lib==0.4.10 
+RUN pip install TA-Lib==0.4.10
+RUN pip install jupyter
 
 COPY ./ /home/unicorn/work 
