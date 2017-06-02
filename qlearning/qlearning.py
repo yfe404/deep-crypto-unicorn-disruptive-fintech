@@ -11,6 +11,7 @@ import talib
 DEBUG=True
 
 
+
 class Environment:
     def __init__(self):
         self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
@@ -84,20 +85,23 @@ def log(message):
     if DEBUG:
         print message
 
+
+class StrategyLearner:
+    
+    def __init__(self, n_states, n_actions):
+        self.learning_rate = 0.3
+        self.discount_rate = 0.3
+        self.Q = np.random.normal(size=(n_actions,n_states))
+#        self.cumulative_return = []
+
+    def chooseAction(self, state, reward):
+        pass
+
 def test_run():
-
-    log("Init Q w/ random values")
-    Q = np.random.normal(size=(6,3))  ## 3 actions * 6 states (just to try, there will be much more")
-    log("Q matrix = {}".format(Q))
-
-    learning_rate = 0.3
-    discount_rate = 0.3
-  
-
-
     env = Environment()
-    env.reset()
+    learner = SrategyLearner(6, 3)
 
+    env.reset()
     observation, reward, done, info = env.step("NOTHING")
 
     #for i in range (300):
