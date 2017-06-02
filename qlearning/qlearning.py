@@ -60,8 +60,9 @@ class Environment:
             
         return observation, reward, done, info
 
-
-
+#    def __create_state(self):
+        # Discretize indicators
+ 
     def __compute_state(self):
         if math.isnan(self.upper_band_5[self.state_idx]) \
            or math.isnan(self.lower_band_5[self.state_idx]):
@@ -91,41 +92,84 @@ class StrategyLearner:
     def __init__(self, n_states, n_actions):
         self.learning_rate = 0.3
         self.discount_rate = 0.3
-        self.Q = np.random.normal(size=(n_actions,n_states))
-#        self.cumulative_return = []
+        self.Q = np.random.normal(size=(n_states,n_actions))
+        self.cumulative_reward = []
 
     def chooseAction(self, state, reward):
-        pass
+        ACTIONS = ['BUY', 'SELL', 'NOTHING']
+        return ACTIONS[np.argmax(Q[state])]
+
+
 
 def test_run():
     env = Environment()
-    learner = SrategyLearner(6, 3)
+    learner = StrategyLearner(6, 3)
 
-    env.reset()
-    observation, reward, done, info = env.step("NOTHING")
 
+    #Q = np.random.normal(size=(6,3))
+    #learning_rate = 0.3
+    #discount_rate = 0.3
     #for i in range (300):
-    i = 0
-    while(not done):
-        log("")
-        log ("$$$$$$$$$ Iteration {} $$$$$$$$$".format(i))
-        log("")
+    #i = 0
+
+    for i in range(10):
+        env.reset()
+        observation, reward, done, info = env.step("NOTHING")
+        cumulative_reward = 0
+        while(not done):
+            #        log("")
+            # log ("$$$$$$$$$ Iteration {} $$$$$$$$$".format(i))
+            #       log("")
                 
-        i += 1 # ptain c'est crade
-        old_state = observation
-        observation, reward, done, info = env.step(chooseAction(Q, old_state))
+            #i += 1 # ptain c'est crade
+            old_state = observation
+            observation, reward, done, info = env.step(chooseAction(learner.Q, old_state))
+            
+            if done:
+                learner.cumulative_reward.append(cumulative_reward)
+                log(cumulative_reward)
+                #break
+                continue
+            cumulative_reward += reward
 
-        a = np.argmax(Q[old_state])
-        Q[old_state, a] = \
-                   (1 - learning_rate) * \
-                   Q[old_state, a] + \
-                   learning_rate * (reward + discount_rate * Q[observation, \
-                                                               np.argmax(Q[observation])])
+            a = np.argmax(learner.Q[old_state])
+            learner.Q[old_state, a] = \
+                (1 - learner.learning_rate) * \
+                learner.Q[old_state, a] + \
+                learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
+                                             np.argmax(learner.Q[observation])])
 
-        prettyPrintQ(Q)
-        log("")
-        log ("$$$$$$$$$ $$$$$$$$$ $$$$$$$$$")
-        log("")
+
+#        log(cumulative_reward)
+    prettyPrintQ(learner.Q)
+ #       log("")
+#        log ("$$$$$$$$$ $$$$$$$$$ $$$$$$$$$")
+#        log("")
+
+"""
+
+
+
+    1. Set the gamma parameter, and environment rewards in matrix R.
+
+    2. Initialize matrix Q to zero.
+
+    3. For each episode:
+
+        Select a random initial state.
+
+        Do While the goal state hasn't been reached.
+
+            Select one among all possible actions for the current state.
+            Using this possible action, consider going to the next state.
+            Get maximum Q value for this next state based on all possible actions.
+            Compute: Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
+            Set the next state as the current state.
+
+        End Do
+
+    End For
+"""
         
         #log("Q matrix = {}".format(Q))
 
@@ -162,6 +206,7 @@ def prettyPrintQ(Q):
 def chooseAction(Q, state):
     ACTIONS = ['BUY', 'SELL', 'NOTHING']
     return ACTIONS[np.argmax(Q[state])]
+
 
 
 def applyAction(current):
