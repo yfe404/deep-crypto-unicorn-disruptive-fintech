@@ -106,30 +106,19 @@ def test_run():
     learner = StrategyLearner(6, 3)
 
 
-    #Q = np.random.normal(size=(6,3))
-    #learning_rate = 0.3
-    #discount_rate = 0.3
-    #for i in range (300):
-    #i = 0
-
     for i in range(10):
         env.reset()
         observation, reward, done, info = env.step("NOTHING")
         cumulative_reward = 0
+
         while(not done):
-            #        log("")
-            # log ("$$$$$$$$$ Iteration {} $$$$$$$$$".format(i))
-            #       log("")
-                
-            #i += 1 # ptain c'est crade
             old_state = observation
             observation, reward, done, info = env.step(chooseAction(learner.Q, old_state))
-            
             if done:
                 learner.cumulative_reward.append(cumulative_reward)
                 log(cumulative_reward)
-                #break
                 continue
+
             cumulative_reward += reward
 
             a = np.argmax(learner.Q[old_state])
@@ -139,51 +128,9 @@ def test_run():
                 learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
                                              np.argmax(learner.Q[observation])])
 
-
-#        log(cumulative_reward)
     prettyPrintQ(learner.Q)
- #       log("")
-#        log ("$$$$$$$$$ $$$$$$$$$ $$$$$$$$$")
-#        log("")
 
-"""
-
-
-
-    1. Set the gamma parameter, and environment rewards in matrix R.
-
-    2. Initialize matrix Q to zero.
-
-    3. For each episode:
-
-        Select a random initial state.
-
-        Do While the goal state hasn't been reached.
-
-            Select one among all possible actions for the current state.
-            Using this possible action, consider going to the next state.
-            Get maximum Q value for this next state based on all possible actions.
-            Compute: Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
-            Set the next state as the current state.
-
-        End Do
-
-    End For
-"""
-        
-        #log("Q matrix = {}".format(Q))
-
-#        action = chooseAction(Q,state)
-         
-#        learning_rate = 0.3
-#        discount_rate = 0.3
-  
-#        a = np.argmax(Q[state])
-#        Q[state, a] = \
-#            (1 - learning_rate) * \
-#            Q[state, a] + \
-#            learning_rate * (reward + discount_rate * Q[next_state, np.argmax(Q[next_state])])
-
+    
 
 def prettyPrintQ(Q):
     line = ["_", "\t", "_", "\t", "_"]
@@ -208,27 +155,9 @@ def chooseAction(Q, state):
     return ACTIONS[np.argmax(Q[state])]
 
 
-
-def applyAction(current):
-    ## La flemme je sais meme pas ce que je vais mettre en prototype
-    ## J'ai mis current au pif, j'aurais aussi bien pu mettre diplodocus
-    pass
-
-
-
 if __name__ == "__main__":
     test_run()
 
-
-""" 
-Features
-adjusted cose / SMA
-BB value
-holding stock 
-return since entry (percentage) -- Not yet
-"""
-
-# normalize / discretize features 
 
 """
 stepsize = size(data) / steps
@@ -237,8 +166,7 @@ for i in range (0, steps)
     threshold[i] = data[(i + 1) * stepsize]
 """
 
-# builds a utility table as the agent interacts w/ the world
-###print np.random.normal(size=(5,4)) 
+
 """ 
 Select training data 
 iterate vertme <s,a,r,s'>
