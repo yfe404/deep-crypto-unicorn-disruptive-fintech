@@ -115,7 +115,7 @@ class Environment:
             observation = observation + self.data.iloc[self.state_idx].state
             observation = int(observation)
 
-        print "Oberving state {}".format(observation)
+#        print "Oberving state {}".format(observation)
         return observation, reward, done, info
 
 
@@ -178,22 +178,51 @@ def log(message):
 class StrategyLearner:
     
     def __init__(self, n_states, n_actions):
-        self.learning_rate = 0.3
+        self.learning_rate = 0.05
         self.discount_rate = 0.3
-        self.Q = np.random.normal(size=(n_states,n_actions))
+        self.Q = np.random.normal(size=(n_states,n_actions)) * -0.11 ## * min(reward)
         self.cumulative_reward = []
+
+        ## DynaQ ##
+        self.Tc = np.ones((n_states, n_actions, n_states))
+        self.Tc * 0.0000001 ## Prevents future zero divide
+        self.T = np.zeros((n_states, n_actions, n_states))
+        self.R = np.zeros((n_states, n_actions))
+
 
     def chooseAction(self, state, action_space):
         return action_space[np.argmax(self.Q[state])]
 
 
 
+    def dynaUpdateModels(state, action, next_state, reward):
+        self.Tc[state, action, next_state] += 1
+        self.T[state, action, next_state] = Tc[state, action, next_state] / \
+                                            np.sum(Tc[state, action])
+        self.R[state, action] = (1 - self.learning_rate) * R[state, action] + \
+                                self.learning_rate * reward
+
+    def dynaUnleashed():
+        for i in range(100):
+            s = np.random.randint(200000)
+            a = action_space[np.random.randint(3)]
+            next_s = self.T[s, a, np.argmax(self.T[s,a])]
+            r = self.R[s,a]
+
+            self.Q[s, a] = \
+                           (1 - self.learning_rate) * \
+                           self.Q[s, a] + \
+                           self.learning_rate * (r + self.discount_rate * \
+                                                    self.Q[next_s, \
+                                                              np.argmax(self.Q[next_s])])
+            
+
 def test_run():
     env = Environment()
     learner = StrategyLearner(200000, 3)
 
 
-    for i in range(10):
+    for i in range(100):
         env.reset()
         observation, reward, done, info = env.step("NOTHING")
         cumulative_reward = 0
@@ -209,7 +238,7 @@ def test_run():
                 learner.cumulative_reward.append(cumulative_reward)
                 log(cumulative_reward)
                 continue
-
+            
             cumulative_reward += reward
 
             a = np.argmax(learner.Q[old_state])
