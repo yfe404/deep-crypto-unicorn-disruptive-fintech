@@ -142,7 +142,7 @@ class StrategyLearner:
     
     def __init__(self, n_states, n_actions):
         self.learning_rate = 0.05
-        self.discount_rate = 0.3
+        self.discount_rate = 0.6
         self.Q = np.random.normal(size=(n_states,n_actions)) * -0.11 ## * min(reward)
         self.cumulative_reward = []
 
