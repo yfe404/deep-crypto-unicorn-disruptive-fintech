@@ -66,24 +66,27 @@ class Environment:
                         self.data['rsi14_discrete']
 
 
+
         self.state_idx = 0
+        
+        ## We start with no open positions
         self.long_positions = False
-        self.close_prices = self.data['close'].values
+        #self.close_prices = self.data['close'].values
         self.action_space = ['BUY', 'SELL', 'NOTHING']
 
-        self.upper_band_5, \
-        self.sma_5, \
-        self.lower_band_5 = talib.BBANDS(
-            self.close_prices,
-            timeperiod=5,
-            # number of non-biased standard deviations from the mean
-            nbdevup=2,
-            nbdevdn=2,
-            # Moving average type: simple moving average here
-            matype=0)
+#        self.upper_band_5, \
+#        self.sma_5, \
+#        self.lower_band_5 = talib.BBANDS(
+#            self.close_prices,
+#            timeperiod=5,
+#            # number of non-biased standard deviations from the mean
+#            nbdevup=2,
+#            nbdevdn=2,
+#            # Moving average type: simple moving average here
+#            matype=0)
 
-        self.returns = np.zeros(len(self.data))
-        self.returns[1:] = (self.close_prices[1:] / self.close_prices[:-1])-1
+#        self.returns = np.zeros(len(self.data))
+#        self.returns[1:] = (self.close_prices[1:] / self.close_prices[:-1])-1
 
 
     def reset(self):
@@ -106,10 +109,13 @@ class Environment:
                 self.long_positions = False
 
             if self.long_positions:
-                reward = self.returns[self.state_idx]
+                reward = self.data.iloc[self.state_idx].reward
 
-            observation = self.__compute_state()
-            
+            observation = (100000 * 1 if self.long_positions else 0)
+            observation = observation + self.data.iloc[self.state_idx].state
+            observation = int(observation)
+
+        print "Oberving state {}".format(observation)
         return observation, reward, done, info
 
 
@@ -184,7 +190,7 @@ class StrategyLearner:
 
 def test_run():
     env = Environment()
-    learner = StrategyLearner(6, 3)
+    learner = StrategyLearner(200000, 3)
 
 
     for i in range(10):
