@@ -219,29 +219,6 @@ def test_run():
                 learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
                                              np.argmax(learner.Q[observation])])
 
-    prettyPrintQ(learner.Q)
-
-    
-
-def prettyPrintQ(Q):
-    line = ["_", "\t", "_", "\t", "_"]
-    labels = [
-        "low & not long",
-        "low & long    ",
-        "med & not long",
-        "med & long    ",
-        "up & not long ",
-        "up & long     "
-        ]
-    linum = 0
-
-    log("                BUY\tSELL\tNOTHING")
-    for i in range(6):
-        l = line[:]
-        l[np.argmax(Q[i]) * 2] = "X"
-        log(labels[i] + "\t" + "".join(l))
-
-
 
 if __name__ == "__main__":
     test_run()
