@@ -22,6 +22,24 @@ class Environment:
         self.data.index = self.data['time']
         self.data = self.data.drop('time', axis=1)
 
+        ## Compute and normalize indicators
+        self.data['sma5'] = self.data['close']. \
+                            rolling(window=5, center=False).mean()
+        self.data['sma10'] = self.data['close']. \
+                             rolling(window=10, center=False).mean()
+        self.data['bb_upper_10'] = self.data['sma10'] + \
+                                   2* self.data['close'].rolling(window=10, center=False).std()
+        self.data['bb_lower_10'] = self.data['sma10'] - \
+                                   2* self.data['close'].rolling(window=10, center=False).std()
+        self.data['rsi9'] = self.__rsi(9, self.data['close'])
+        self.data['rsi14'] = self.__rsi(14, self.data['close'])
+
+        self.data['sma5_norm'] = self.data['sma5'] / self.data['close'] -1
+        self.data['sma10_norm'] = self.data['sma10'] / self.data['close'] -1
+        self.data['bbvalue'] = (self.data['close'] - self.data['sma10']) / \
+                               (2 * self.data['close'].rolling(window=10, center=False).std())
+
+
         
         
 
@@ -76,7 +94,7 @@ class Environment:
 
 
 
-    def __rsi(window, prices):
+    def __rsi(self, window, prices):
         delta = prices.diff()
         dUp, dDown = delta.copy(), delta.copy()
         dUp[dUp < 0] = 0
@@ -87,7 +105,7 @@ class Environment:
         rsi = 100 - (100 / (1 + RS))
         return rsi
 
-    def __daily_returns(prices):
+    def __daily_returns(self, prices):
         """Compute and return the daily return values."""
         daily_returns = prices.copy() # copy given Serie to match size 
         # compute daily returns for row 1 onwards
@@ -95,7 +113,7 @@ class Environment:
         daily_returns.iloc[0] = 0 # set daily returns for row 0 to 0
         return daily_returns
 
-    def __discretizer(data, steps):
+    def __discretizer(self, data, steps):
         data = data.copy()
         stepsize = len(data) / steps
         data.sort()
