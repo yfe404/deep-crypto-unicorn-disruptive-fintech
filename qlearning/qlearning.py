@@ -39,7 +39,8 @@ class Environment:
         self.data['bbvalue'] = (self.data['close'] - self.data['sma10']) / \
                                (2 * self.data['close'].rolling(window=10, center=False).std())
 
-
+        ## Compute all rewards
+        self.data['reward'] = self.__daily_returns(self.data['close'])
         
         
 
