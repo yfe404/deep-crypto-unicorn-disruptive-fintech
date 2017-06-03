@@ -218,7 +218,7 @@ def test_run():
 
 
     # Save Q matrix
-    suffix = _ + str(time.time()) + ".pkl"
+    suffix = "_" + str(time.time()) + ".pkl"
     output = open("Q" + suffix, 'wb')
 
     pickle.dump(learner.Q, output)
