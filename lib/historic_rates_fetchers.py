@@ -24,7 +24,13 @@ class APIHistoricRateFetcher:
             'end': dtime_now.isoformat(),
             'granularity': self.granularity,
         }
-        r = requests.get(self.api_url + 'products/{}/candles'.format(self.product), params=params, auth=self.auth)
+
+        rates = []
+
+        try:
+            r = requests.get(self.api_url + 'products/{}/candles'.format(self.product), params=params, auth=self.auth)
+        except requests.exceptions.RequestException as e:
+            print('[APIHistoricRateFetcher] RequestException: {}'.format(e))
 
         if r.status_code != 200:
             print('[APIHistoricRateFetcher] ERROR: Non-200 status code from API: {} / {}'.format(r.content))

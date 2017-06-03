@@ -79,7 +79,7 @@ while True:
     did_something = False
 
     ## Get historic rates
-    window = 15*60 # 15 minutes
+    window = 15*15*60 # 15 minutes
     rates_sorted = rate_fetcher.next(window)
     # Don't interpolate in dataset mode
     if MODE == 'api':
@@ -88,6 +88,12 @@ while True:
 
     if YOLO:
         print(close_prices)
+
+    if len(close_prices) < 1:
+        print('No rates received... Skipping')
+        if MODE is 'api':
+            time.sleep(30)
+        continue
     
     ## Apply strategy 
     upper, middle, lower = talib.BBANDS(
