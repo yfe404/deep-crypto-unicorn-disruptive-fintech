@@ -77,9 +77,11 @@ else:
     rate_fetcher = APIHistoricRateFetcher(api_url, auth, product, granularity)
 
 class Qtrader:
-    Q.pkl = open('', 'rb')
-    self.Q = pickle.load(Q.pkl)
-    long_positions = False
+
+    def __init__(self):
+        Q_pkl = open('Q_1496526999.62.pkl', 'rb')
+        self.Q = pickle.load(Q_pkl)
+        self.long_positions = False
 
     def chooseAction(self, state, action_space):
         action = action_space[np.argmax(self.Q[state])]
@@ -101,7 +103,7 @@ class Qtrader:
 qTrader = Qtrader()
 action_space = ['BUY', 'SELL', 'NOTHING']
 
-def __rsi(self, window, prices):
+def __rsi(window, prices):
     delta = prices.diff()
     dUp, dDown = delta.copy(), delta.copy()
     dUp[dUp < 0] = 0
@@ -112,7 +114,7 @@ def __rsi(self, window, prices):
     rsi = 100 - (100 / (1 + RS))
     return rsi
 
-def __discretizer(self, data, steps):
+def __discretizer(data, steps):
     data = data.copy()
     stepsize = len(data) / steps
     data.sort()
@@ -163,15 +165,15 @@ while True:
     sma10_discrete = sma10.apply(d_sma10)
     bbvalue_discrete = bbvalue.apply(d_bbvalue)
     rsi9_discrete = rsi9.apply(d_bbvalue)
-    state =  sma10_discrete[-1]*100 + \
-                          bbvalue_discrete[-1]*10 + \
-                          rsi9_discrete[-1]*1
+    state =  sma10_discrete.iloc[-1]*100 + \
+                          bbvalue_discrete.iloc[-1]*10 + \
+                          rsi9_discrete.iloc[-1]*1
     state = (1000 * 1 if qTrader.long_positions else 0) + state
     state = int(state)
 
     
     ### Choose action
-    action = qTrader.chooseAction(state, action_space):
+    action = qTrader.chooseAction(state, action_space)
     
     if action == "BUY" and simulator.balance('USD') > 0:
         if DEBUG:
