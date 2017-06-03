@@ -15,7 +15,7 @@ class Environment:
     def __init__(self):
 
         # Load CSV
-        self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
+        self.data = pd.read_csv("/home/unicorn/work/datasets/test.csv")
 
         ## Changing default index to timestamps
         self.data.index = self.data['time']
@@ -61,7 +61,7 @@ class Environment:
         self.data['state'] =  self.data['sma10_discrete']*100 + \
                         self.data['bbvalue_discrete']*10 + \
                         self.data['rsi9_discrete']*1 #+ \
-#                        self.data['rsi14_discrete']
+#                       self.data['rsi14_discrete']
 
 
 
@@ -191,29 +191,29 @@ def test_run():
         observation, reward, done, info = env.step("NOTHING")
         cumulative_reward = 0
 
-        while(not done):
+        while True:
             old_state = observation
             observation, reward, done, info = env.step(
                 learner.chooseAction(
                     old_state,
                     env.action_space
                 ))
+
+            # If we're at the end of the dataset
             if done:
                 learner.cumulative_reward.append(cumulative_reward)
                 log(cumulative_reward)
-                continue
-            
+                break
+
             cumulative_reward += reward
 
             a = np.argmax(learner.Q[old_state])
             learner.Q[old_state, a] = \
-                (1 - learner.learning_rate) * \
                 learner.Q[old_state, a] + \
-                learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
-                                             np.argmax(learner.Q[observation])])
+                learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, np.argmax(learner.Q[observation])] - learner.Q[old_state, a])
 
-            #learner.dynaUpdateModels(old_state, a, observation, reward)
-            #learner.dynaUnleashed()
+            learner.dynaUpdateModels(old_state, a, observation, reward)
+            learner.dynaUnleashed()
 
 if __name__ == "__main__":
     test_run()
