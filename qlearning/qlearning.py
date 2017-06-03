@@ -11,7 +11,6 @@ import talib
 DEBUG=True
 
 
-
 class Environment:
     def __init__(self):
 
@@ -51,19 +50,18 @@ class Environment:
         d_rsi14 = self.__discretizer(self.data['rsi14'].values, 10)
 
         ## Discretize indicators
-        self.data['sma5_discrete'] = self.data["sma5"].apply(d_sma5)
+#        self.data['sma5_discrete'] = self.data["sma5"].apply(d_sma5)
         self.data['sma10_discrete'] = self.data["sma10"].apply(d_sma10)
         self.data['bbvalue_discrete'] = self.data["bbvalue"].apply(d_bbvalue)
         self.data['rsi9_discrete'] = self.data["rsi9"].apply(d_bbvalue)
-        self.data['rsi14_discrete'] = self.data["rsi14"].apply(d_bbvalue)
+#        self.data['rsi14_discrete'] = self.data["rsi14"].apply(d_bbvalue)
 
 
         ## Compute global states
-        self.data['state'] = self.data['sma5_discrete']*10000 + \
-                        self.data['sma10_discrete']*1000 + \
-                        self.data['bbvalue_discrete']*100 + \
-                        self.data['rsi9_discrete']*10 + \
-                        self.data['rsi14_discrete']
+        self.data['state'] =  self.data['sma10_discrete']*100 + \
+                        self.data['bbvalue_discrete']*10 + \
+                        self.data['rsi9_discrete']*1 #+ \
+#                        self.data['rsi14_discrete']
 
 
 
@@ -73,20 +71,6 @@ class Environment:
         self.long_positions = False
         #self.close_prices = self.data['close'].values
         self.action_space = ['BUY', 'SELL', 'NOTHING']
-
-#        self.upper_band_5, \
-#        self.sma_5, \
-#        self.lower_band_5 = talib.BBANDS(
-#            self.close_prices,
-#            timeperiod=5,
-#            # number of non-biased standard deviations from the mean
-#            nbdevup=2,
-#            nbdevdn=2,
-#            # Moving average type: simple moving average here
-#            matype=0)
-
-#        self.returns = np.zeros(len(self.data))
-#        self.returns[1:] = (self.close_prices[1:] / self.close_prices[:-1])-1
 
 
     def reset(self):
@@ -111,7 +95,7 @@ class Environment:
             if self.long_positions:
                 reward = self.data.iloc[self.state_idx].reward
 
-            observation = (100000 * 1 if self.long_positions else 0)
+            observation = (1000 * 1 if self.long_positions else 0)
             observation = observation + self.data.iloc[self.state_idx].state
             observation = int(observation)
 
@@ -148,27 +132,6 @@ class Environment:
             threshold[i] = data[(i+1) * stepsize -1]
         return lambda(x): np.sum([x > i for i in threshold])
 
-
-
- 
-    def __compute_state(self):
-        if math.isnan(self.upper_band_5[self.state_idx]) \
-           or math.isnan(self.lower_band_5[self.state_idx]):
-            return 3 if self.long_positions else 2
-
-        isAbove = self.close_prices[self.state_idx] > self.upper_band_5[self.state_idx]
-        isBelow = self.close_prices[self.state_idx] < self.lower_band_5[self.state_idx]
-        isBetween = \
-                    self.close_prices[self.state_idx] <= self.upper_band_5[self.state_idx] \
-                    and self.close_prices[self.state_idx] >= self.lower_band_5[self.state_idx]
-
-        if isBetween:
-            return 3 if self.long_positions else 2
-        if isBelow:
-            return 1 if self.long_positions else 0
-        if isAbove:
-            return 5 if self.long_positions else 4
-
     
 def log(message):
     if DEBUG:
@@ -183,11 +146,10 @@ class StrategyLearner:
         self.Q = np.random.normal(size=(n_states,n_actions)) * -0.11 ## * min(reward)
         self.cumulative_reward = []
 
-        ## DynaQ ##
-        n_Tc_entries = 2220000
-        self.Tc = np.ones((n_Tc_entries, n_states))
+        ## DynaQ ##)  
+        self.Tc = np.ones((n_states, n_actions, n_states))
         self.Tc * 0.0000001 ## Prevents future zero divide
-        self.T = np.zeros((n_Tc_entries, n_states))
+        self.T = np.zeros((n_states, n_actions, n_states))
         self.R = np.zeros((n_states, n_actions))
 
 
@@ -196,20 +158,19 @@ class StrategyLearner:
 
 
 
-    def dynaUpdateModels(state, action, next_state, reward):
-        tc_entry = 1000000 * action + state
-        self.Tc[tc_entry, next_state] += 1
-        self.T[tc_entry, next_state] = Tc[tc_entry, next_state] / \
-                                            np.sum(Tc[tc_entry])
-        self.R[state, action] = (1 - self.learning_rate) * R[state, action] + \
+    def dynaUpdateModels(self,state, action, next_state, reward):
+        self.Tc[state, action, next_state] += 1
+        self.T[state, action, next_state] = self.Tc[state, action, next_state] / \
+                                            np.sum(self.Tc[state,action])
+        self.R[state, action] = (1 - self.learning_rate) * self.R[state, action] + \
                                 self.learning_rate * reward
 
-    def dynaUnleashed():
+    def dynaUnleashed(self):
         for i in range(100):
-            s = np.random.randint(200000)
-            a = action_space[np.random.randint(3)]
-            t_entry = 1000000 * a + s
-            next_s = self.T[t_entry, np.argmax(self.T[t_entry])]
+            s = np.random.randint(2000)
+            a = np.random.randint(3)
+            next_s = self.T[s, a, np.argmax(self.T[s,a])]
+            next_s = int(next_s)
             r = self.R[s,a]
 
             self.Q[s, a] = \
@@ -222,7 +183,7 @@ class StrategyLearner:
 
 def test_run():
     env = Environment()
-    learner = StrategyLearner(200000, 3)
+    learner = StrategyLearner(2000, 3)
 
 
     for i in range(100):
@@ -251,8 +212,8 @@ def test_run():
                 learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
                                              np.argmax(learner.Q[observation])])
 
-            learner.dynaUpdateModels(old_state, a, observation, reward)
-            learner.dynaUnleashed()
+            #learner.dynaUpdateModels(old_state, a, observation, reward)
+            #learner.dynaUnleashed()
 
 if __name__ == "__main__":
     test_run()
