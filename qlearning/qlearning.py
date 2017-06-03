@@ -41,7 +41,14 @@ class Environment:
 
         ## Compute all rewards
         self.data['reward'] = self.__daily_returns(self.data['close'])
-        
+
+
+        ## Build disretizers
+        d_sma5 = self.__discretizer(self.data['sma5'].values, 10)
+        d_sma10 = self.__discretizer(self.data['sma10'].values, 10)
+        d_bbvalue = self.__discretizer(self.data['bbvalue'].values, 10)
+        d_rsi9 = self.__discretizer(self.data['rsi9'].values, 10)
+        d_rsi14 = self.__discretizer(self.data['rsi14'].values, 10)
         
 
 
