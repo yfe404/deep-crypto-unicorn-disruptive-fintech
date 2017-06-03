@@ -18,6 +18,7 @@ class Environment:
         self.state_idx = 0
         self.long_positions = False
         self.close_prices = self.data['close'].values
+        self.action_space = ['BUY', 'SELL', 'NOTHING']
 
         self.upper_band_5, \
         self.sma_5, \
@@ -95,9 +96,8 @@ class StrategyLearner:
         self.Q = np.random.normal(size=(n_states,n_actions))
         self.cumulative_reward = []
 
-    def chooseAction(self, state, reward):
-        ACTIONS = ['BUY', 'SELL', 'NOTHING']
-        return ACTIONS[np.argmax(Q[state])]
+    def chooseAction(self, state, action_space):
+        return action_space[np.argmax(self.Q[state])]
 
 
 
@@ -113,7 +113,11 @@ def test_run():
 
         while(not done):
             old_state = observation
-            observation, reward, done, info = env.step(chooseAction(learner.Q, old_state))
+            observation, reward, done, info = env.step(
+                learner.chooseAction(
+                    old_state,
+                    env.action_space
+                ))
             if done:
                 learner.cumulative_reward.append(cumulative_reward)
                 log(cumulative_reward)
@@ -150,9 +154,9 @@ def prettyPrintQ(Q):
         l[np.argmax(Q[i]) * 2] = "X"
         log(labels[i] + "\t" + "".join(l))
 
-def chooseAction(Q, state):
-    ACTIONS = ['BUY', 'SELL', 'NOTHING']
-    return ACTIONS[np.argmax(Q[state])]
+#def chooseAction(Q, state):
+#    ACTIONS = ['BUY', 'SELL', 'NOTHING']
+#    return ACTIONS[np.argmax(Q[state])]
 
 
 if __name__ == "__main__":
