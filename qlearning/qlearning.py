@@ -248,6 +248,8 @@ def test_run():
                 learner.learning_rate * (reward + learner.discount_rate * learner.Q[observation, \
                                              np.argmax(learner.Q[observation])])
 
+            learner.dynaUpdateModels(old_state, a, observation, reward)
+            learner.dynaUnleashed()
 
 if __name__ == "__main__":
     test_run()
