@@ -52,13 +52,8 @@ while current_date < end_date:
 # Sort by date
 result_sorted = sorted(result, key=lambda x: x[0])
 
-# Interpolate missing points
-result_sorted = resample_rates(result_sorted, granularity)
-
 # Output CSV
 print('time,low,high,open,close,volume')
 for rates in result_sorted:
-    # OPTIMIZE
-    timestamp = int((rates[0].to_pydatetime() - datetime(1970,1,1)).total_seconds())
-    print('{},{},{},{},{},{}'.format(timestamp, rates[1], rates[2], rates[3], rates[4], rates[5]))
+    print('{},{},{},{},{},{}'.format(rates[0], rates[1], rates[2], rates[3], rates[4], rates[5]))
 
