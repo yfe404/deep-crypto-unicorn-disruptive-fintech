@@ -184,9 +184,10 @@ class StrategyLearner:
         self.cumulative_reward = []
 
         ## DynaQ ##
-        self.Tc = np.ones((n_states, n_actions, n_states))
+        n_Tc_entries = 2220000
+        self.Tc = np.ones((n_Tc_entries, n_states))
         self.Tc * 0.0000001 ## Prevents future zero divide
-        self.T = np.zeros((n_states, n_actions, n_states))
+        self.T = np.zeros((n_Tc_entries, n_states))
         self.R = np.zeros((n_states, n_actions))
 
 
@@ -196,9 +197,10 @@ class StrategyLearner:
 
 
     def dynaUpdateModels(state, action, next_state, reward):
-        self.Tc[state, action, next_state] += 1
-        self.T[state, action, next_state] = Tc[state, action, next_state] / \
-                                            np.sum(Tc[state, action])
+        tc_entry = 1000000 * action + state
+        self.Tc[tc_entry, next_state] += 1
+        self.T[tc_entry, next_state] = Tc[tc_entry, next_state] / \
+                                            np.sum(Tc[tc_entry])
         self.R[state, action] = (1 - self.learning_rate) * R[state, action] + \
                                 self.learning_rate * reward
 
@@ -206,7 +208,8 @@ class StrategyLearner:
         for i in range(100):
             s = np.random.randint(200000)
             a = action_space[np.random.randint(3)]
-            next_s = self.T[s, a, np.argmax(self.T[s,a])]
+            t_entry = 1000000 * a + s
+            next_s = self.T[t_entry, np.argmax(self.T[t_entry])]
             r = self.R[s,a]
 
             self.Q[s, a] = \
