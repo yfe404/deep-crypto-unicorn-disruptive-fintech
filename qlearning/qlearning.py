@@ -154,39 +154,13 @@ def prettyPrintQ(Q):
         l[np.argmax(Q[i]) * 2] = "X"
         log(labels[i] + "\t" + "".join(l))
 
-#def chooseAction(Q, state):
-#    ACTIONS = ['BUY', 'SELL', 'NOTHING']
-#    return ACTIONS[np.argmax(Q[state])]
 
 
 if __name__ == "__main__":
     test_run()
 
 
-"""
-stepsize = size(data) / steps
-data.sort()
-for i in range (0, steps) 
-    threshold[i] = data[(i + 1) * stepsize]
-"""
 
-
-""" 
-Select training data 
-iterate vertme <s,a,r,s'>
-- set starttime, init Q w/ random
-- select a 
-- observe r,s'
-- update Q
-test policy pi (apply it to get the state for the next val
-repeat until converge 
-
-Update Q using Bellman equation
-gamma : discount rate 
-alpha: learning rate
-Q'[s,a] = (1 - alpha) * Q[s,a] + alpha*(r+gamma*Q[s', argmaxa'(Q[s',a']))
-
-""" 
 """ 
 success depends on exploration 
 choose a random action w/ proba c typically 0.3 at the beg of learning
