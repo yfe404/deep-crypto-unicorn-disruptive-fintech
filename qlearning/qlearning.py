@@ -6,7 +6,8 @@ import util as utl
 import pandas as pd
 import numpy as np
 import math
-import talib
+import pickle
+import time
 
 DEBUG=True
 
@@ -215,6 +216,14 @@ def test_run():
             learner.dynaUpdateModels(old_state, a, observation, reward)
             learner.dynaUnleashed()
 
+
+    # Save Q matrix
+    suffix = _ + str(time.time()) + ".pkl"
+    output = open("Q" + suffix, 'wb')
+
+    pickle.dump(learner.Q, output)
+    output.close()
+    
 if __name__ == "__main__":
     test_run()
 
