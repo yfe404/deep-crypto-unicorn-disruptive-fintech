@@ -14,7 +14,20 @@ DEBUG=True
 
 class Environment:
     def __init__(self):
+
+        # Load CSV
         self.data = pd.read_csv("/home/unicorn/work/datasets/rates_2017_january_may_1min.csv")
+
+        ## Changing default index to timestamps
+        self.data.index = self.data['time']
+        self.data = self.data.drop('time', axis=1)
+
+        
+        
+
+
+
+
         self.state_idx = 0
         self.long_positions = False
         self.close_prices = self.data['close'].values
@@ -61,8 +74,38 @@ class Environment:
             
         return observation, reward, done, info
 
-#    def __create_state(self):
-        # Discretize indicators
+
+
+    def __rsi(window, prices):
+        delta = prices.diff()
+        dUp, dDown = delta.copy(), delta.copy()
+        dUp[dUp < 0] = 0
+        dDown[dDown > 0] = 0
+        RolUp = dUp.rolling(window=window, center=False).mean()
+        RolDown = dDown.rolling(window=window, center=False).mean().abs()
+        RS = RolUp / RolDown
+        rsi = 100 - (100 / (1 + RS))
+        return rsi
+
+    def __daily_returns(prices):
+        """Compute and return the daily return values."""
+        daily_returns = prices.copy() # copy given Serie to match size 
+        # compute daily returns for row 1 onwards
+        daily_returns[1:] = (prices[1:] / prices[:-1].values)-1
+        daily_returns.iloc[0] = 0 # set daily returns for row 0 to 0
+        return daily_returns
+
+    def __discretizer(data, steps):
+        data = data.copy()
+        stepsize = len(data) / steps
+        data.sort()
+        threshold = [0 for i in range(steps)]
+        for i in range(0, steps):
+            threshold[i] = data[(i+1) * stepsize -1]
+        return lambda(x): np.sum([x > i for i in threshold])
+
+
+
  
     def __compute_state(self):
         if math.isnan(self.upper_band_5[self.state_idx]) \
