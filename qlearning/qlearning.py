@@ -235,13 +235,14 @@ def test_run():
 
     observation, reward, done, info = env.step("NOTHING")
 #    print "{},{}".format(info, "NOTHING")
+    file.write("time,action\n")
     while True:
         if done:
             break
         action = learner.chooseAction(observation, env.action_space)
         time = info
-        print "{},{}\n".format(info, action)
-        file.write("{},{}".format(info, action))
+        print "{},{}".format(info, action)
+        file.write("{},{}\n".format(info, action))
         observation, reward, done, info = env.step(action)
 
     file.close()
