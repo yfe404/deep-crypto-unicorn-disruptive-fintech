@@ -4,8 +4,9 @@
 from __future__ import print_function
 import os, sys, json, requests
 from datetime import datetime, timedelta
-from coinbase import CoinbaseExchangeAuth
-from rates_helpers import resample_rates
+
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from lib.coinbase import CoinbaseExchangeAuth
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
