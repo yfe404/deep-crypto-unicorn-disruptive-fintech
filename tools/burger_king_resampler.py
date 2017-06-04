@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import datetime
 import argparse
+from datetime import datetime
 
 
 parser = argparse.ArgumentParser()
@@ -16,8 +16,12 @@ data = pd.read_csv(args.data_set)
 data['time'] = pd.to_datetime(data['time'], unit='s', origin='unix')
 data = data.set_index('time')
 
+# Resample and fill missing values
 data_resampled = data.resample(str(args.granularity) + 'S').bfill().ffill()
-#data_resampled = data.fillna(method='ffill', inplace=True)
-#data_resampled = data.fillna(method='backfill', inplace=True)
+
+# Restore timestamp
+data_resampled = data_resampled.reset_index()
+data_resampled['time'] = data_resampled['time'].apply(lambda x: int((x.to_pydatetime() - datetime(1970,1,1)).total_seconds()))
+data_resampled = data_resampled.set_index('time')
 
 data_resampled.to_csv('{}_resampled.csv'.format(args.data_set))
