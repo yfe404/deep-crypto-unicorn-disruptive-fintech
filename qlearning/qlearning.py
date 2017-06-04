@@ -16,7 +16,7 @@ class Environment:
     def __init__(self):
 
         # Load CSV
-        self.data = pd.read_csv("/home/unicorn/work/datasets/test.csv")
+        self.data = pd.read_csv("datasets/resampled/rates_2017_january_may_15min.csv")
 
         ## Changing default index to timestamps
         self.data.index = self.data['time']
@@ -54,7 +54,7 @@ class Environment:
 #        self.data['sma5_discrete'] = self.data["sma5"].apply(d_sma5)
         self.data['sma10_discrete'] = self.data["sma10"].apply(d_sma10)
         self.data['bbvalue_discrete'] = self.data["bbvalue"].apply(d_bbvalue)
-        self.data['rsi9_discrete'] = self.data["rsi9"].apply(d_bbvalue)
+        self.data['rsi9_discrete'] = self.data["rsi9"].apply(d_rsi9)
 #        self.data['rsi14_discrete'] = self.data["rsi14"].apply(d_bbvalue)
 
 
