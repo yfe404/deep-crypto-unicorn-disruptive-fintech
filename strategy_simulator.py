@@ -75,7 +75,7 @@ print('Final USD balance: {}'.format(portfolio.balance('USD')))
 print('Profit: {}'.format(portfolio.balance('profit')))
 
 print('\nPlotting ...')
-fig, axarr = plt.subplots(2, sharex=True, figsize=(16,9))
+fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
 
 # Plot stock
 axarr[0].set_title('BTC price over time')
@@ -96,6 +96,11 @@ ax_usd.plot(X, usd_balance_history, 'b-', label='USD')
 ax_usd.set_ylabel('USD')
 ax_btc.plot(X, btc_balance_history, 'r-', label='BTC')
 ax_btc.set_ylabel('BTC')
+
+# Plot profit
+axarr[2].set_title('Profit over time')
+axarr[2].plot(X, profit_history)
+axarr[2].set_ylabel('USD')
 
 
 plt.savefig('test.png', dpi=300)
