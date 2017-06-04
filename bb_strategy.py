@@ -4,7 +4,6 @@
 from __future__ import print_function
 import os, json, requests, time, datetime, sys, argparse
 import talib, pandas, numpy as np
-from lib.simulator import PortfolioSimulator
 from lib.historic_rates_fetchers import *
 
 def eprint(*args, **kwargs):
