@@ -83,3 +83,7 @@ class CSVHistoricRateFetcher:
         self.cur += 1
 
         return result
+
+    def has_next(self):
+        return self.cur < self.table_len - 1
+
