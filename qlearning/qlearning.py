@@ -185,9 +185,9 @@ class StrategyLearner:
 def test_run():
     env = Environment()
     learner = StrategyLearner(2000, 3)
+    converge = False
 
-
-    for i in range(100):
+    while not converge:
         env.reset()
         observation, reward, done, info = env.step("NOTHING")
         cumulative_reward = 0
@@ -202,6 +202,9 @@ def test_run():
 
             # If we're at the end of the dataset
             if done:
+                if len(learner.cumulative_reward) > 0 and \
+                   learner.cumulative_reward[-1] == cumulative_reward:
+                    converge = True
                 learner.cumulative_reward.append(cumulative_reward)
                 log(cumulative_reward)
                 break
