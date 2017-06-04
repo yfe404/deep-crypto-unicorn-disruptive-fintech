@@ -20,7 +20,7 @@ class Environment:
 
         ## Changing default index to timestamps
         self.data.index = self.data['time']
-        self.data = self.data.drop('time', axis=1)
+        #self.data = self.data.drop('time', axis=1)
 
         ## Compute and normalize indicators
         self.data['sma5'] = self.data['close']. \
@@ -99,7 +99,7 @@ class Environment:
             observation = (1000 * 1 if self.long_positions else 0)
             observation = observation + self.data.iloc[self.state_idx].state
             observation = int(observation)
-
+            info = self.data.iloc[self.state_idx].time
 #        print "Oberving state {}".format(observation)
         return observation, reward, done, info
 
@@ -143,7 +143,7 @@ class StrategyLearner:
     
     def __init__(self, n_states, n_actions):
         self.learning_rate = 0.05
-        self.discount_rate = 0.6
+        self.discount_rate = 0.3
         self.Q = np.random.normal(size=(n_states,n_actions)) * -0.11 ## * min(reward)
         self.cumulative_reward = []
 
@@ -221,12 +221,32 @@ def test_run():
 
 
     # Save Q matrix
-    suffix = "_" + str(time.time()) + ".pkl"
+#    suffix = "_" + str(time.time()) + ".pkl"
+    suffix = "dino" #pck ca marche plus time ...
     output = open("Q" + suffix, 'wb')
 
     pickle.dump(learner.Q, output)
     output.close()
-    
+
+
+## Print predictions
+    file = open("predictions.csv","w") 
+    env.reset()
+
+    observation, reward, done, info = env.step("NOTHING")
+#    print "{},{}".format(info, "NOTHING")
+    while True:
+        if done:
+            break
+        action = learner.chooseAction(observation, env.action_space)
+        time = info
+        print "{},{}\n".format(info, action)
+        file.write("{},{}".format(info, action))
+        observation, reward, done, info = env.step(action)
+
+    file.close()
+
+        
 if __name__ == "__main__":
     test_run()
 
