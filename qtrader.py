@@ -79,7 +79,7 @@ else:
 class Qtrader:
 
     def __init__(self):
-        Q_pkl = open('Q_1496526999.62.pkl', 'rb')
+        Q_pkl = open('Qdino', 'rb')
         self.Q = pickle.load(Q_pkl)
         self.long_positions = False
 
@@ -164,7 +164,7 @@ while True:
     
     sma10_discrete = sma10.apply(d_sma10)
     bbvalue_discrete = bbvalue.apply(d_bbvalue)
-    rsi9_discrete = rsi9.apply(d_bbvalue)
+    rsi9_discrete = rsi9.apply(d_rsi9)
     state =  sma10_discrete.iloc[-1]*100 + \
                           bbvalue_discrete.iloc[-1]*10 + \
                           rsi9_discrete.iloc[-1]*1
