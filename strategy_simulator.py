@@ -39,7 +39,7 @@ actions_df = set_time_index(actions_df)
 print(actions_df.head())
 
 print('\nMerging dataframes ...')
-simulation_df = pd.concat([stock_df, actions_df], axis=1)
+simulation_df = pd.concat([stock_df, actions_df], axis=1, join='inner')
 print(simulation_df.head())
 
 print('Simulating ...')
@@ -71,38 +71,39 @@ print('---------------')
 print('Initial BTC balance: {}'.format(0))
 print('Initial USD balance: {}'.format(args.investment))
 print('Final BTC balance: {}'.format(portfolio.balance('BTC')))
+print('Final BTC balance: {} USD (at close price)'.format(portfolio.balance('BTC') * simulation_df['close'][-1]))
 print('Final USD balance: {}'.format(portfolio.balance('USD')))
 print('Profit: {}'.format(portfolio.balance('profit')))
 
 print('\nPlotting ...')
-fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
-
-# Plot stock
-axarr[0].set_title('BTC price over time')
-axarr[0].set_ylabel('USD')
-
-ohlc = []
-for row in stock_df.itertuples():
-    ohlc.append([row.timestamp, row.open, row.high, row.low, row.close, row.volume])
-candlestick_ohlc(axarr[0], ohlc)
-
-# Plot balances
-X = stock_df['timestamp']
-axarr[1].set_title('Balances over time')
-axarr[1].grid(b=False)
-ax_usd = axarr[1]
-ax_btc = axarr[1].twinx()
-ax_usd.plot(X, usd_balance_history, 'b-', label='USD')
-ax_usd.set_ylabel('USD')
-ax_btc.plot(X, btc_balance_history, 'r-', label='BTC')
-ax_btc.set_ylabel('BTC')
-
-# Plot profit
-axarr[2].set_title('Profit over time')
-axarr[2].plot(X, profit_history)
-axarr[2].set_ylabel('USD')
-
-
-plt.savefig('test.png', dpi=300)
-
+#fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
+#
+## Plot stock
+#axarr[0].set_title('BTC price over time')
+#axarr[0].set_ylabel('USD')
+#
+#ohlc = []
+#for row in stock_df.itertuples():
+#    ohlc.append([row.timestamp, row.open, row.high, row.low, row.close, row.volume])
+#candlestick_ohlc(axarr[0], ohlc)
+#
+## Plot balances
+#X = stock_df['timestamp']
+#axarr[1].set_title('Balances over time')
+#axarr[1].grid(b=False)
+#ax_usd = axarr[1]
+#ax_btc = axarr[1].twinx()
+#ax_usd.plot(X, usd_balance_history, 'b-', label='USD')
+#ax_usd.set_ylabel('USD')
+#ax_btc.plot(X, btc_balance_history, 'r-', label='BTC')
+#ax_btc.set_ylabel('BTC')
+#
+## Plot profit
+#axarr[2].set_title('Profit over time')
+#axarr[2].plot(X, profit_history)
+#axarr[2].set_ylabel('USD')
+#
+#
+#plt.savefig('test.png', dpi=300)
+#
 
