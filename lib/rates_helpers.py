@@ -7,7 +7,7 @@ def resample_rates(rates, granularity):
     df[0] = pd.to_datetime(df[0], unit='s', origin='unix')
     df = df.set_index(0)
 
-    #df_resampled = df.resample(str(granularity) + 'S').interpolate(method='time')
-    df_resampled = df.fillna(method='ffill', inplace='TRUE')
-    df_resampled = df.fillna(method='backfill', inplace='TRUE')
+    df_resampled = df.resample(str(granularity) + 'S')#.interpolate(method='time')
+    df_resampled = df.fillna(method='ffill', inplace=True)
+    df_resampled = df.fillna(method='backfill', inplace=True)
     return df_resampled.reset_index().values
