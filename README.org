@@ -1,8 +1,26 @@
 * deep-crypto-unicorn-disruptive-fintech
 Geospatial deep learning tool for unicorn feeding 
 
-** Docker usage
+** Strategy quickstart
 
+Create strategy:
+#+BEGIN_SRC sh
+cp strategies/example_strategy.py strategies/my_strategy.py
+vim strategies/my_strategy.py
+# ...
+#+END_SRC
+
+Run strategy (ie. on /datasets/rates_2017_may_60min.csv/):
+#+BEGIN_SRC sh
+./strategies/my_strategy.py datasets/rates_2017_may_60min.csv
+#+END_SRC
+
+Test strategy:
+#+BEGIN_SRC sh
+./strategy_simulator.py datasets/rates_2017_may_60min.csv MY_STRATEGY.csv
+#+END_SRC
+
+** Docker usage
 
 *** Build image
 
