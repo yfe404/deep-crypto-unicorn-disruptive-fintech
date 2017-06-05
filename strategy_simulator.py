@@ -45,7 +45,7 @@ simulation_df = pd.concat([stock_df, actions_df], axis=1, join='inner')
 print(simulation_df.head())
 
 print('Simulating ...')
-portfolio = PortfolioSimulator(args.investment, args.reinvest_rate)
+portfolio = PortfolioSimulator(fees_percent=0.25)
 portfolio.set_balance('BTC', 0)
 portfolio.set_balance('USD', args.investment)
 
@@ -61,27 +61,27 @@ for row in simulation_df.itertuples():
     print('{} closing at {} -> {}'.format(row[0], row.close, row.action))
 
     if row.action == 'BUY':
-        btc_qty = portfolio.balance('USD') / row.close
+        btc_qty = portfolio.get_balance('USD') / row.close
         portfolio.buy('BTC-USD', btc_qty, row.close)
 
     elif row.action == 'SELL':
-        btc_qty = portfolio.balance('BTC')
+        btc_qty = portfolio.get_balance('BTC')
         portfolio.sell('BTC-USD', btc_qty, row.close)
 
-    btc_balance_history.append(portfolio.balance('BTC'))
-    usd_balance_history.append(portfolio.balance('USD'))
-    profit_history.append(portfolio.balance('profit'))
-    total_value.append(portfolio.balance('profit') + portfolio.balance('USD') + portfolio.balance('BTC') * row.close)
+    btc_balance_history.append(portfolio.get_balance('BTC'))
+    usd_balance_history.append(portfolio.get_balance('USD'))
+    profit_history.append(portfolio.get_balance('profit'))
+    total_value.append(portfolio.get_balance('profit') + portfolio.get_balance('USD') + portfolio.get_balance('BTC') * row.close)
     X.append(row[0])
 
 print('\nSimulation done')
 print('---------------')
 print('Initial BTC balance: {}'.format(0))
 print('Initial USD balance: {}'.format(args.investment))
-print('Final BTC balance: {}'.format(portfolio.balance('BTC')))
-print('Final BTC balance: {} USD (at close price)'.format(portfolio.balance('BTC') * simulation_df['close'][-1]))
-print('Final USD balance: {}'.format(portfolio.balance('USD')))
-print('Profit: {}'.format(portfolio.balance('profit')))
+print('Final BTC balance: {}'.format(portfolio.get_balance('BTC')))
+print('Final BTC balance: {} USD (at close price)'.format(portfolio.get_balance('BTC') * simulation_df['close'][-1]))
+print('Final USD balance: {}'.format(portfolio.get_balance('USD')))
+print('Profit: {}'.format(portfolio.get_balance('profit')))
 
 print('\nPlotting ...')
 #fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
