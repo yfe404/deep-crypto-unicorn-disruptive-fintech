@@ -7,11 +7,13 @@ import pandas as pd
 from lib.simulator import PortfolioSimulator
 
 # Setup matplotlib for headless plotting
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib.finance import candlestick_ohlc
-plt.style.use('ggplot')
+#import matplotlib
+#matplotlib.use('Svg')
+#import matplotlib.pyplot as plt
+#from matplotlib.finance import candlestick_ohlc
+#plt.style.use('ggplot')
+import plotly
+import plotly.graph_objs as go
 
 parser = argparse.ArgumentParser()
 parser.add_argument('stock_path', metavar='STOCK', help='path to the stock rates dataset')
@@ -50,6 +52,10 @@ portfolio.set_balance('USD', args.investment)
 btc_balance_history = []
 usd_balance_history = []
 profit_history = []
+total_value = []
+X = []
+
+import math, random
 
 for row in simulation_df.itertuples():
     print('{} closing at {} -> {}'.format(row[0], row.close, row.action))
@@ -65,6 +71,8 @@ for row in simulation_df.itertuples():
     btc_balance_history.append(portfolio.balance('BTC'))
     usd_balance_history.append(portfolio.balance('USD'))
     profit_history.append(portfolio.balance('profit'))
+    total_value.append(portfolio.balance('profit') + portfolio.balance('USD') + portfolio.balance('BTC') * row.close)
+    X.append(row[0])
 
 print('\nSimulation done')
 print('---------------')
@@ -77,8 +85,27 @@ print('Profit: {}'.format(portfolio.balance('profit')))
 
 print('\nPlotting ...')
 #fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
-#
-## Plot stock
+
+# Plot stock
+trace1 = go.Candlestick(x=simulation_df.index.values, open=simulation_df.open, high=simulation_df.high, low=simulation_df.low, close=simulation_df.close)
+trace2 = go.Scatter(x=X, y=btc_balance_history)
+trace3 = go.Scatter(x=X, y=usd_balance_history)
+trace4 = go.Scatter(x=X, y=total_value)
+
+fig = plotly.tools.make_subplots(rows=4, cols=1)
+
+fig.append_trace(trace1, 1, 1)
+fig.append_trace(trace2, 2, 1)
+fig.append_trace(trace3, 3, 1)
+fig.append_trace(trace4, 4, 1)
+#fig['layout'].update(height=600, width=600, title='i <3 subplots')
+
+#plotly.offline.plot({
+#    "data": [trace],
+#    "layout": go.Layout(title="hello world")
+#})
+plotly.offline.plot(fig)
+
 #axarr[0].set_title('BTC price over time')
 #axarr[0].set_ylabel('USD')
 #
@@ -104,6 +131,5 @@ print('\nPlotting ...')
 #axarr[2].set_ylabel('USD')
 #
 #
-#plt.savefig('test.png', dpi=300)
+#plt.savefig('test.svg')
 #
-
