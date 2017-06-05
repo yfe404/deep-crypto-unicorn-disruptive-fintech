@@ -44,18 +44,18 @@ class Environment:
 
 
         ## Build disretizers
-        d_sma5 = self.__discretizer(self.data['sma5'].values, 10)
-        d_sma10 = self.__discretizer(self.data['sma10'].values, 10)
+        d_sma5 = self.__discretizer(self.data['sma5_norm'].values, 10)
+        d_sma10 = self.__discretizer(self.data['sma10_norm'].values, 10)
         d_bbvalue = self.__discretizer(self.data['bbvalue'].values, 10)
         d_rsi9 = self.__discretizer(self.data['rsi9'].values, 10)
         d_rsi14 = self.__discretizer(self.data['rsi14'].values, 10)
 
         ## Discretize indicators
-#        self.data['sma5_discrete'] = self.data["sma5"].apply(d_sma5)
-        self.data['sma10_discrete'] = self.data["sma10"].apply(d_sma10)
+#        self.data['sma5_discrete'] = self.data["sma5_norm"].apply(d_sma5)
+        self.data['sma10_discrete'] = self.data["sma10_norm"].apply(d_sma10)
         self.data['bbvalue_discrete'] = self.data["bbvalue"].apply(d_bbvalue)
         self.data['rsi9_discrete'] = self.data["rsi9"].apply(d_rsi9)
-#        self.data['rsi14_discrete'] = self.data["rsi14"].apply(d_bbvalue)
+#        self.data['rsi14_discrete'] = self.data["rsi14"].apply(d_rsi14)
 
 
         ## Compute global states
@@ -143,7 +143,7 @@ class StrategyLearner:
     
     def __init__(self, n_states, n_actions):
         self.learning_rate = 0.05
-        self.discount_rate = 0.3
+        self.discount_rate = 0.95
         self.Q = np.random.normal(size=(n_states,n_actions)) * -0.11 ## * min(reward)
         self.cumulative_reward = []
 
