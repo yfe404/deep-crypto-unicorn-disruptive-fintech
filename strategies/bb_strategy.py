@@ -24,6 +24,8 @@ while rate_fetcher.has_next():
     rates_sorted = rate_fetcher.next(window)
 
     close_prices = np.array([x[4] for x in rates_sorted])
+    # low_prices = np.array([x[1] for x in rates_sorted])
+    # high_prices = np.array([x[2] for x in rates_sorted])
     close_timestamp = rates_sorted[-1][0]
 
     if args.yolo:
@@ -38,7 +40,7 @@ while rate_fetcher.has_next():
         timeperiod=args.periods,
         nbdevup=2,
         nbdevdn=2,
-        matype=0)
+        matype=2)
  
     action = 'NOTHING'
 
