@@ -43,6 +43,10 @@ docker run -it trading python strategies/XXX.py -h
 
 *** Simulator usage
 
+| Input  | Output |
+|--------+--------|
+| Stock dataset, Strategy actions | Simulation result |
+
 #+BEGIN_SRC sh
 docker run -it trading python strategy_simulator.py -h
 usage: strategy_simulator.py [-h] [--investment AMOUNT] [--reinvest-rate RATE]
