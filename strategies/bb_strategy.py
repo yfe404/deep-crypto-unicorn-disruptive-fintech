@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4 ft=python
 
-from __future__ import print_function
 import os, json, requests, time, datetime, sys, argparse
 import talib, pandas, numpy as np
-from lib.historic_rates_fetchers import *
 
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from lib.historic_rates_fetchers import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--yolo", help="output logs become crazy", action="store_true")
@@ -28,16 +27,17 @@ while rate_fetcher.has_next():
     close_timestamp = rates_sorted[-1][0]
 
     if args.yolo:
-        eprint(close_prices)
+        print(close_prices)
 
     # Compute Bollinger Bands
+    # nbdevup: number of non-biased standard deviations from the mean
+    # nbdevdn: 
+    # matype: moving average type: simple moving average here (0)
     upper, middle, lower = talib.BBANDS(
         close_prices,
         timeperiod=args.periods,
-        # number of non-biased standard deviations from the mean
         nbdevup=2,
         nbdevdn=2,
-        # Moving average type: simple moving average here
         matype=0)
  
     action = 'NOTHING'
@@ -50,8 +50,9 @@ while rate_fetcher.has_next():
     elif close_prices[-1] >= upper[-1]:
         action = 'SELL'
 
-    eprint('{} >>> {}'.format(close_timestamp, action))
+    print('{} >>> {}'.format(close_timestamp, action))
     result.append([close_timestamp, action])
+
 
 with open('bb_out.csv', 'w') as f:
     f.write('time,action\n')
