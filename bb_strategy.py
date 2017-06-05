@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--yolo", help="output logs become crazy", action="store_true")
 parser.add_argument("dataset", metavar='DATASET', help="load historic rates from file")
 parser.add_argument("granularity", metavar='GRANULARITY', type=int, help="interval between candlesticks")
+parser.add_argument("periods", metavar='PERIODS', type=int, help="number of periods on which to compute the BB at each iterations (10 is a good value)")
 args = parser.parse_args()
 
 rate_fetcher = CSVHistoricRateFetcher(args.dataset)
@@ -20,7 +21,7 @@ result = []
 
 while rate_fetcher.has_next():
     # Get historic rates
-    window = 15*args.granularity # 15 points
+    window = args.periods*args.granularity
     rates_sorted = rate_fetcher.next(window)
 
     close_prices = np.array([x[4] for x in rates_sorted])
@@ -32,7 +33,7 @@ while rate_fetcher.has_next():
     # Compute Bollinger Bands
     upper, middle, lower = talib.BBANDS(
         close_prices,
-        timeperiod=10,
+        timeperiod=args.periods,
         # number of non-biased standard deviations from the mean
         nbdevup=2,
         nbdevdn=2,
