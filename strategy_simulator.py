@@ -4,16 +4,9 @@
 import argparse
 import datetime as dt
 import pandas as pd
-from lib.simulator import PortfolioSimulator
-
-# Setup matplotlib for headless plotting
-#import matplotlib
-#matplotlib.use('Svg')
-#import matplotlib.pyplot as plt
-#from matplotlib.finance import candlestick_ohlc
-#plt.style.use('ggplot')
 import plotly
 import plotly.graph_objs as go
+from lib.simulator import PortfolioSimulator
 
 parser = argparse.ArgumentParser()
 parser.add_argument('stock_path', metavar='DATASET', help='path to the stock rates dataset')
@@ -70,18 +63,31 @@ for row in simulation_df.itertuples():
 
     btc_balance_history.append(portfolio.get_balance('BTC'))
     usd_balance_history.append(portfolio.get_balance('USD'))
-    profit_history.append(portfolio.get_balance('profit'))
-    total_value.append(portfolio.get_balance('profit') + portfolio.get_balance('USD') + portfolio.get_balance('BTC') * row.close)
+    total_value.append(portfolio.get_balance('USD') + portfolio.get_balance('BTC') * row.close)
     X.append(row[0])
 
 print('\nSimulation done')
 print('---------------')
+end_price = simulation_df['close'][-1]
+final_btc_value = portfolio.get_balance('BTC') * end_price
+final_portfolio_value = portfolio.get_balance('USD') + final_btc_value
+ratio = final_portfolio_value / args.investment
 print('Initial BTC balance: {}'.format(0))
 print('Initial USD balance: {}'.format(args.investment))
 print('Final BTC balance: {}'.format(portfolio.get_balance('BTC')))
-print('Final BTC balance: {} USD (at close price)'.format(portfolio.get_balance('BTC') * simulation_df['close'][-1]))
+print('Final BTC balance: {} USD (at close price)'.format(final_btc_value))
 print('Final USD balance: {}'.format(portfolio.get_balance('USD')))
-print('Profit: {}'.format(portfolio.get_balance('profit')))
+print('Final total portfolio value: {} USD (at close price)'.format(final_portfolio_value))
+print('Ratio: {}'.format(ratio))
+
+print('\nBenchmark')
+print('---------')
+start_price = simulation_df['close'][0]
+end_price = simulation_df['close'][-1]
+ratio = end_price / start_price
+print('Price at start of period ({}): {}'.format(simulation_df.index.values[0], start_price))
+print('Price at end of period ({}): {}'.format(simulation_df.index.values[-1], end_price))
+print('Ratio: {}'.format(ratio))
 
 print('\nPlotting ...')
 #fig, axarr = plt.subplots(3, sharex=True, figsize=(16,9))
@@ -98,38 +104,13 @@ fig.append_trace(trace1, 1, 1)
 fig.append_trace(trace2, 2, 1)
 fig.append_trace(trace3, 3, 1)
 fig.append_trace(trace4, 4, 1)
+
 #fig['layout'].update(height=600, width=600, title='i <3 subplots')
 
 #plotly.offline.plot({
 #    "data": [trace],
 #    "layout": go.Layout(title="hello world")
 #})
+
 plotly.offline.plot(fig)
 
-#axarr[0].set_title('BTC price over time')
-#axarr[0].set_ylabel('USD')
-#
-#ohlc = []
-#for row in stock_df.itertuples():
-#    ohlc.append([row.timestamp, row.open, row.high, row.low, row.close, row.volume])
-#candlestick_ohlc(axarr[0], ohlc)
-#
-## Plot balances
-#X = stock_df['timestamp']
-#axarr[1].set_title('Balances over time')
-#axarr[1].grid(b=False)
-#ax_usd = axarr[1]
-#ax_btc = axarr[1].twinx()
-#ax_usd.plot(X, usd_balance_history, 'b-', label='USD')
-#ax_usd.set_ylabel('USD')
-#ax_btc.plot(X, btc_balance_history, 'r-', label='BTC')
-#ax_btc.set_ylabel('BTC')
-#
-## Plot profit
-#axarr[2].set_title('Profit over time')
-#axarr[2].plot(X, profit_history)
-#axarr[2].set_ylabel('USD')
-#
-#
-#plt.savefig('test.svg')
-#
