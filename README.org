@@ -16,7 +16,7 @@ docker build -t trading:latest .
 
 | Input  | Output |
 |--------+--------|
-| API Credentials | Stock dataset |
+| API credentials | Stock dataset |
 
 Download rates for the month of January with a granularity of 30s:
 #+BEGIN_SRC sh
