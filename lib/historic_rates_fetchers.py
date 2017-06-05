@@ -29,13 +29,14 @@ class APIHistoricRateFetcher:
 
         try:
             r = requests.get(self.api_url + 'products/{}/candles'.format(self.product), params=params, auth=self.auth)
-            rates = sorted(r.json(), key=lambda x: x[0])
+            
+            if r.status_code != 200:
+                print('[APIHistoricRateFetcher] ERROR: Non-200 status code from API: {} / {}'.format(r.status_code, r.content))
+            else:
+                rates = sorted(r.json(), key=lambda x: x[0])
+
         except requests.exceptions.RequestException as e:
             print('[APIHistoricRateFetcher] RequestException: {}'.format(e))
-
-        if r.status_code != 200:
-            print('[APIHistoricRateFetcher] ERROR: Non-200 status code from API: {} / {}'.format(r.content))
-            return []
 
         if len(rates) < requested_points:
             print('[APIHistoricRateFetcher] WARN: API returned less points than expected.')
