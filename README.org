@@ -45,7 +45,7 @@ docker run -it trading python strategies/XXX.py -h
 
 | Input  | Output |
 |--------+--------|
-| Stock dataset, Strategy actions | Simulation result |
+| Stock dataset, strategy actions | Simulation result |
 
 #+BEGIN_SRC sh
 docker run -it trading python strategy_simulator.py -h
