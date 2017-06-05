@@ -53,8 +53,16 @@ while current_date < end_date:
 # Sort by date
 result_sorted = sorted(result, key=lambda x: x[0])
 
+# Remove duplicates
+result_dedup = []
+seen = {}
+for rates in result_sorted:
+    if not seen.get(rates[0], False):
+        seen[rates[0]] = True
+        result_dedup.append(rates)
+
 # Output CSV
 print('time,low,high,open,close,volume')
-for rates in result_sorted:
+for rates in result_dedup:
     print('{},{},{},{},{},{}'.format(rates[0], rates[1], rates[2], rates[3], rates[4], rates[5]))
 
