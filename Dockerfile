@@ -72,7 +72,8 @@ requests==2.17.3 \
 certifi==2017.4.17 \
 six==1.10.0 \
 matplotlib \
-plotly
+plotly \
+scipy
 
 RUN pip install TA-Lib==0.4.10
 RUN pip install jupyter
