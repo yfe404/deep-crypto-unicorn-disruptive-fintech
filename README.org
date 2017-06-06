@@ -1,7 +1,18 @@
 * deep-crypto-unicorn-disruptive-fintech
 Geospatial deep learning tool for unicorn feeding 
 
+** Workflow guidelines
+
+1. Use Jupyter to draft you strategies, do some plotting and try some indicators. See [[id:915ba80c-0e46-4efa-958a-dadd35f6380b][Run Jupyter]].
+2. Create a dedicated file for your strategy. See [[id:0fc05222-0007-441f-b8e6-de1a1a55b59f][Strategy quickstart]].
+3. Document as much as possible your strategy in the header of the file with at least the name of the
+  strategy, the indicators involved and a URL to learn more about the strategy if it exists.
+  example you can take a look at 
+
 ** Strategy quickstart
+   :PROPERTIES:
+   :ID:       0fc05222-0007-441f-b8e6-de1a1a55b59f
+   :END:
 
 Create strategy:
 #+BEGIN_SRC sh
@@ -40,7 +51,7 @@ Download rates for the month of January with a granularity of 30s:
 #+BEGIN_SRC sh
 export GDAX_API_KEY=XXX GDAX_API_SECRET=XXX GDAX_API_PASS=XXX
 
-./historic_rates_downloader.py 2017-01-01T06:00:00 2017-01-31T23:59:59 60 BTC-USD > res.csv
+./tools/historic_rates_downloader.py 2017-01-01T06:00:00 2017-01-31T23:59:59 60 BTC-USD > res.csv
 # Downloading historic rates between 2017-01-01 06:00:00 and 2017-01-31 23:59:59 with granularity of 60 seconds
 # Downloading rates between 2017-01-01 06:00:00 and 2017-01-01 09:20:00 ...
 # Downloading rates between 2017-01-01 09:20:00 and 2017-01-01 12:40:00 ...
@@ -81,7 +92,10 @@ optional arguments:
   --reinvest-rate RATE  reinvest rate (default: 0.5)
 #+END_SRC
 
-*** Run Jupyter 
+*** Run Jupyter
+    :PROPERTIES:
+    :ID:       915ba80c-0e46-4efa-958a-dadd35f6380b
+    :END: 
 
 To run jupyter-notebook in the container with the web interface accessible from within the browser 
 of the host machine:
