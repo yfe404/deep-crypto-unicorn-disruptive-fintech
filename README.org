@@ -51,7 +51,7 @@ Download rates for the month of January with a granularity of 30s:
 #+BEGIN_SRC sh
 export GDAX_API_KEY=XXX GDAX_API_SECRET=XXX GDAX_API_PASS=XXX
 
-./historic_rates_downloader.py 2017-01-01T06:00:00 2017-01-31T23:59:59 60 BTC-USD > res.csv
+./tools/historic_rates_downloader.py 2017-01-01T06:00:00 2017-01-31T23:59:59 60 BTC-USD > res.csv
 # Downloading historic rates between 2017-01-01 06:00:00 and 2017-01-31 23:59:59 with granularity of 60 seconds
 # Downloading rates between 2017-01-01 06:00:00 and 2017-01-01 09:20:00 ...
 # Downloading rates between 2017-01-01 09:20:00 and 2017-01-01 12:40:00 ...
