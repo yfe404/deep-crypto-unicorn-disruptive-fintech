@@ -5,8 +5,9 @@ Geospatial deep learning tool for unicorn feeding
 
 1. Use Jupyter to draft you strategies, do some plotting and try some indicators. See [[id:915ba80c-0e46-4efa-958a-dadd35f6380b][Run Jupyter]].
 2. Create a dedicated file for your strategy. See [[id:0fc05222-0007-441f-b8e6-de1a1a55b59f][Strategy quickstart]].
-
-
+3. Document as much as possible your strategy in the header of the file with at least the name of the
+  strategy, the indicators involved and a URL to learn more about the strategy if it exists.
+  example you can take a look at 
 
 ** Strategy quickstart
    :PROPERTIES:
