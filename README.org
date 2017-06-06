@@ -1,7 +1,17 @@
 * deep-crypto-unicorn-disruptive-fintech
 Geospatial deep learning tool for unicorn feeding 
 
+** Workflow guidelines
+
+1. Use Jupyter to draft you strategies, do some plotting and try some indicators. See [[id:915ba80c-0e46-4efa-958a-dadd35f6380b][Run Jupyter]].
+2. Create a dedicated file for your strategy. See [[id:0fc05222-0007-441f-b8e6-de1a1a55b59f][Strategy quickstart]].
+
+
+
 ** Strategy quickstart
+   :PROPERTIES:
+   :ID:       0fc05222-0007-441f-b8e6-de1a1a55b59f
+   :END:
 
 Create strategy:
 #+BEGIN_SRC sh
@@ -81,7 +91,10 @@ optional arguments:
   --reinvest-rate RATE  reinvest rate (default: 0.5)
 #+END_SRC
 
-*** Run Jupyter 
+*** Run Jupyter
+    :PROPERTIES:
+    :ID:       915ba80c-0e46-4efa-958a-dadd35f6380b
+    :END: 
 
 To run jupyter-notebook in the container with the web interface accessible from within the browser 
 of the host machine:
