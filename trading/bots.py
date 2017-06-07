@@ -81,9 +81,10 @@ class RaptorBot(TradingBot):
             df = pd.DataFrame(data=rates, columns=['time', 'low', 'high', 'open', 'close', 'volume']).set_index('time')
 
             # Drop last row if incomplete
-            if (df.index[-1] - df.index[-2]) < self.granularity:
-                df.drop(df.index[-1])
-
+            print(df.index.values[-1])
+            print(df.index.values[-2])
+            # if (df.index.values[-1] - df.index.values[-2]) < self.granularity:
+            df = df.drop(df.index[-1])
             self.state['data'] = df
 
         else:
