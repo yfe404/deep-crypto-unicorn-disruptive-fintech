@@ -70,9 +70,13 @@ class GDAXAPIClient(ExchangeAPIClient):
         }
 
         if funds != 0:
+            funds = int(funds * 100)
+            funds = float(funds) / 100.0
             data['funds'] = funds
         
         if size != 0:
+            size = int(size * 100)
+            size = float(size) / 100.0
             data['size'] = size
 
         logging.info('Placing market order: {}'.format(data))
@@ -80,6 +84,7 @@ class GDAXAPIClient(ExchangeAPIClient):
         return data
 
     def place_limit_order(self, product_id, side, price, size):
+        # TODO: Truncate decimals
         data = {
             'type': 'limit',
             'product_id': product_id,

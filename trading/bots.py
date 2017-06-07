@@ -90,11 +90,11 @@ class RaptorBot(TradingBot):
             logging.warn('Failed to update rates, got empty response (less than 2 rates)')
 
     def __update_positions__(self):
-        crypto_account = self.orders_api_client.get_account(self.crypto_currency)
+        crypto_account = self.order_api_client.get_account(self.crypto_currency)
         available = crypto_account.get('available')
-        if available and float(available) > 0.0:
+        if available and float(available) > 0.01:
             self.state['long'] = True
-        elif available and float(available) <= 0.0:
+        elif available and float(available) <= 0.01:
             self.state['long'] = False
         else:
             logging.warn('Failed to update long positions')
