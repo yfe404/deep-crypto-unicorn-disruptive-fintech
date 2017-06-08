@@ -5,10 +5,15 @@ from bots import RaptorBot
 from clients import GDAXAPIClient
 from coinbase import CoinbaseExchangeAuth
 from strategy import RaptorStrategy
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 
 # Prod API keys
+PROD_API_KEY = os.environ["PROD_API_KEY"]
+PROD_API_SECRET = os.environ["PROD_API_SECRET"]
+PROD_API_PASS = os.environ["PROD_API_PASS"]
+
 
 # Sandbox API keys
 SBOX_API_KEY = '4e45cabd25f7036f569b646707d6712f'
@@ -22,7 +27,7 @@ prod_client = GDAXAPIClient(CoinbaseExchangeAuth(PROD_API_KEY, PROD_API_SECRET, 
 strategy = RaptorStrategy()
 
 # Instantiate bot
-granularity = 3600
+granularity = 3200
 n_samples = 50
 
 bot = RaptorBot('BTC', 'EUR', granularity, n_samples)
