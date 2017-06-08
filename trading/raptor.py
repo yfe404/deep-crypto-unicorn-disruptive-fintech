@@ -22,7 +22,7 @@ prod_client = GDAXAPIClient(CoinbaseExchangeAuth(PROD_API_KEY, PROD_API_SECRET, 
 strategy = RaptorStrategy()
 
 # Instantiate bot
-granularity = 15
+granularity = 3600
 n_samples = 50
 
 bot = RaptorBot('BTC', 'EUR', granularity, n_samples)
@@ -34,4 +34,4 @@ bot.set_strategy(strategy)
 # bot.__update_historic_rates__()
 # bot.__update_positions__()
 # print(bot.state)
-bot.run(10)
+bot.run(30)
