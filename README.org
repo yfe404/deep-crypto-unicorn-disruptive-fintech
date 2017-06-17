@@ -1,5 +1,10 @@
 * deep-crypto-unicorn-disruptive-fintech
 Geospatial deep learning tool for unicorn feeding 
+** Backtesting
+From the root of the repo: 
+#+BEGIN_SRC sh
+docker run -it -v $(pwd):/home/unicorn/work trading python trading/backtesting/main.py 
+#+END_SRC
 
 ** Workflow guidelines
 
