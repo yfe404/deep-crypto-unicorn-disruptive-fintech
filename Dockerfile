@@ -77,5 +77,6 @@ scipy
 
 RUN pip install TA-Lib==0.4.10
 RUN pip install jupyter
+RUN pip install nose2
 
 COPY ./ /home/unicorn/work 
